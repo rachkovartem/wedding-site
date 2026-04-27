@@ -87,7 +87,7 @@ export default function Landing({ invitationId, onNavigate }) {
           style={{ background: '#1F2A24' }}
         >
           <WebGLFog />
-          <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} onSealClick={handleSealClick} />
+          <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} salutation={invitation?.salutation} onSealClick={handleSealClick} />
         </div>
       </div>
 

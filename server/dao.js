@@ -19,12 +19,12 @@ function getAllInvitations(db) {
   `).all();
 }
 
-function createInvitation(db, guestName, plusOneAllowed) {
+function createInvitation(db, guestName, plusOneAllowed, salutation) {
   const id = nanoid(8);
   const createdAt = Math.floor(Date.now() / 1000);
   db.prepare(
-    'INSERT INTO invitations (id, guest_name, plus_one_allowed, created_at) VALUES (?, ?, ?, ?)'
-  ).run(id, guestName, plusOneAllowed ? 1 : 0, createdAt);
+    'INSERT INTO invitations (id, guest_name, salutation, plus_one_allowed, created_at) VALUES (?, ?, ?, ?, ?)'
+  ).run(id, guestName, salutation || 'Дорогой', plusOneAllowed ? 1 : 0, createdAt);
   return getInvitation(db, id);
 }
 

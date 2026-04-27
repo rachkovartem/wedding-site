@@ -63,7 +63,7 @@ function generateGoogleCalendarUrl() {
 }
 
 /**
- * @typedef {{ id?: string, guest_name?: string, plus_one_allowed?: number, rsvp_status?: string | null } | null} Invitation
+ * @typedef {{ id?: string, guest_name?: string, salutation?: string, plus_one_allowed?: number, rsvp_status?: string | null } | null} Invitation
  */
 
 /**
@@ -83,6 +83,7 @@ export default function Letter({ invitation, invitationId }) {
   }
 
   const guestName = invitation?.guest_name
+  const salutation = invitation?.salutation || 'Дорогой'
 
   return (
     <div style={{ minHeight: '100vh', background: '#D4B896', position: 'relative' }}>
@@ -124,7 +125,7 @@ export default function Letter({ invitation, invitationId }) {
               </p>
               {guestName && (
                 <p className="font-script" style={{ color: '#8B4A2E', fontSize: '1.8rem' }}>
-                  Дорогой/Дорогая {guestName},
+                  {salutation} {guestName},
                 </p>
               )}
             </section>

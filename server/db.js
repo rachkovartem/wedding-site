@@ -15,6 +15,7 @@ function createDb(dbPath) {
     CREATE TABLE IF NOT EXISTS invitations (
       id TEXT PRIMARY KEY,
       guest_name TEXT NOT NULL,
+      salutation TEXT NOT NULL DEFAULT 'Дорогой',
       plus_one_allowed INTEGER DEFAULT 0,
       rsvp_status TEXT CHECK (rsvp_status IS NULL OR rsvp_status IN ('yes', 'no')),
       rsvp_plus_one INTEGER,
@@ -38,6 +39,12 @@ function createDb(dbPath) {
       value TEXT NOT NULL
     );
   `);
+
+  // Migration: add salutation column to existing databases
+  const invCols = db.prepare("PRAGMA table_info(invitations)").all();
+  if (!invCols.find(c => c.name === 'salutation')) {
+    db.exec("ALTER TABLE invitations ADD COLUMN salutation TEXT NOT NULL DEFAULT 'Дорогой'");
+  }
 
   return db;
 }

@@ -15,12 +15,12 @@ router.get('/invitations', (req, res) => {
 
 // POST /api/admin/invitations
 router.post('/invitations', (req, res) => {
-  const { guest_name, plus_one_allowed } = req.body;
+  const { guest_name, plus_one_allowed, salutation } = req.body;
   if (!guest_name || typeof guest_name !== 'string' || !guest_name.trim()) {
     return res.status(400).json({ error: 'guest_name is required' });
   }
 
-  const invitation = createInvitation(req.db, guest_name.trim(), plus_one_allowed || 0);
+  const invitation = createInvitation(req.db, guest_name.trim(), plus_one_allowed || 0, salutation || 'Дорогой');
   res.status(201).json(invitation);
 });
 

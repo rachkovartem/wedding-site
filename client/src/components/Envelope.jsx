@@ -183,9 +183,9 @@ function SealCanvas({ sealBreak }) {
 }
 
 /**
- * @param {{ scrollPhase: number, guestName?: string, onSealClick?: () => void }} props
+ * @param {{ scrollPhase: number, guestName?: string, salutation?: string, onSealClick?: () => void }} props
  */
-export default function Envelope({ scrollPhase, guestName, onSealClick }) {
+export default function Envelope({ scrollPhase, guestName, salutation, onSealClick }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
   const [startScale, setStartScale] = useState(0.28)
@@ -269,7 +269,7 @@ export default function Envelope({ scrollPhase, guestName, onSealClick }) {
               letterSpacing: '0.05em',
             }}
           >
-            Дорогой/Дорогая{' '}
+            {salutation || 'Дорогой'}{' '}
             <span style={{ color: '#A8864A' }}>{guestName}</span>
           </div>
         )}

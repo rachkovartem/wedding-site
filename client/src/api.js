@@ -37,7 +37,7 @@ export const postLogout = () => request('/logout', { method: 'POST', body: JSON.
 export const getAdminInvitations = () => request('/admin/invitations')
 
 /**
- * @param {{ guest_name: string, plus_one_allowed: number }} data
+ * @param {{ guest_name: string, plus_one_allowed: number, salutation: string }} data
  */
 export const createAdminInvitation = (data) => request('/admin/invitations', { method: 'POST', body: JSON.stringify(data) })
 

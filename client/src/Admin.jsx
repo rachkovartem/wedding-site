@@ -58,6 +58,7 @@ export default function Admin({ onNavigate }) {
 
   // Create form state
   const [guestName, setGuestName] = useState('')
+  const [salutation, setSalutation] = useState('Дорогой')
   const [plusOneAllowed, setPlusOneAllowed] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState(null)
@@ -101,8 +102,10 @@ export default function Admin({ onNavigate }) {
       await createAdminInvitation({
         guest_name: guestName.trim(),
         plus_one_allowed: plusOneAllowed ? 1 : 0,
+        salutation,
       })
       setGuestName('')
+      setSalutation('Дорогой')
       setPlusOneAllowed(false)
       await loadInvitations()
     } catch {
@@ -274,6 +277,35 @@ export default function Admin({ onNavigate }) {
                   required
                 />
               </div>
+              <div style={{ flex: '0 0 auto', minWidth: '160px' }}>
+                <label
+                  htmlFor="salutation"
+                  style={{
+                    display: 'block',
+                    marginBottom: '6px',
+                    fontSize: '0.85rem',
+                    color: '#A8864A',
+                    fontFamily: 'Cormorant SC, Georgia, serif',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  ОБРАЩЕНИЕ
+                </label>
+                <select
+                  id="salutation"
+                  value={salutation}
+                  onChange={(e) => setSalutation(e.target.value)}
+                  style={{
+                    ...inputStyle,
+                    width: 'auto',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="Дорогой">Дорогой</option>
+                  <option value="Дорогая">Дорогая</option>
+                  <option value="Дорогие">Дорогие</option>
+                </select>
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
               <label
@@ -362,7 +394,7 @@ export default function Admin({ onNavigate }) {
                       margin: '0 0 8px',
                     }}
                   >
-                    {inv.guest_name}
+                    {inv.salutation ? `${inv.salutation} ${inv.guest_name}` : inv.guest_name}
                   </h3>
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <RsvpBadge status={inv.rsvp_status} />

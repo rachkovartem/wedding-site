@@ -185,6 +185,26 @@ describe('Auth API — protected routes', () => {
     expect(res.body.id).toHaveLength(8);
   });
 
+  it('POST /api/admin/invitations stores provided salutation', async () => {
+    const res = await request
+      .post('/api/admin/invitations')
+      .set('Cookie', cookie)
+      .send({ guest_name: 'Ira', plus_one_allowed: 0, salutation: 'Дорогая' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.salutation).toBe('Дорогая');
+  });
+
+  it('POST /api/admin/invitations defaults salutation to Дорогой when omitted', async () => {
+    const res = await request
+      .post('/api/admin/invitations')
+      .set('Cookie', cookie)
+      .send({ guest_name: 'Some Guest', plus_one_allowed: 0 });
+
+    expect(res.status).toBe(201);
+    expect(res.body.salutation).toBe('Дорогой');
+  });
+
   it('POST /api/admin/invitations rejects empty guest_name', async () => {
     const res = await request
       .post('/api/admin/invitations')

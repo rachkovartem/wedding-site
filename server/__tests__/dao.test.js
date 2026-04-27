@@ -15,9 +15,24 @@ describe('DAO', () => {
 
   describe('invitations', () => {
     it('createInvitation returns object with 8-char id', () => {
-      const inv = createInvitation(db, 'Test Guest', 0);
+      const inv = createInvitation(db, 'Test Guest', 0, 'Дорогой');
       expect(inv.id).toHaveLength(8);
       expect(inv.guest_name).toBe('Test Guest');
+    });
+
+    it('createInvitation stores provided salutation', () => {
+      const inv = createInvitation(db, 'Ira', 0, 'Дорогая');
+      expect(inv.salutation).toBe('Дорогая');
+    });
+
+    it('createInvitation defaults salutation to Дорогой when not provided', () => {
+      const inv = createInvitation(db, 'Guest', 0);
+      expect(inv.salutation).toBe('Дорогой');
+    });
+
+    it('createInvitation defaults salutation to Дорогой when null passed', () => {
+      const inv = createInvitation(db, 'Guest', 0, null);
+      expect(inv.salutation).toBe('Дорогой');
     });
 
     it('getInvitation returns null for non-existent id', () => {
@@ -25,13 +40,13 @@ describe('DAO', () => {
     });
 
     it('deleteInvitation removes invitation', () => {
-      const inv = createInvitation(db, 'Delete Me', 0);
+      const inv = createInvitation(db, 'Delete Me', 0, 'Дорогой');
       expect(deleteInvitation(db, inv.id)).toBe(true);
       expect(getInvitation(db, inv.id)).toBeNull();
     });
 
     it('deleteInvitation cascades to views', () => {
-      const inv = createInvitation(db, 'With Views', 0);
+      const inv = createInvitation(db, 'With Views', 0, 'Дорогой');
       recordView(db, inv.id, '1.2.3.4', 'GE', 'Tbilisi', 'Firefox');
       deleteInvitation(db, inv.id);
       const views = getViewsForInvitation(db, inv.id);
