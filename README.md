@@ -2,7 +2,7 @@
 
 Personal wedding invitation web application for Irina and Artem's wedding on 22 June 2026 in Gremi, Kakheti, Georgia.
 
-Each guest receives a unique personal invitation link. The admin dashboard tracks opens (with geo-location), RSVP responses, and guest +1 confirmations.
+Each guest receives a unique personal invitation link. The admin dashboard shows who has opened their invitation and aggregated visit statistics.
 
 ---
 
@@ -20,7 +20,6 @@ wedding-site/
 - Node.js v20+ (v24 supported)
 - Express 4 with better-sqlite3
 - JWT auth via HttpOnly cookie
-- geoip-lite for open tracking
 - Vitest for backend tests
 
 ---
@@ -95,14 +94,7 @@ cd server && npm test
 | Method | Path                              | Description                         |
 |--------|-----------------------------------|-------------------------------------|
 | GET    | `/api/invitations/:id`            | Get invitation (guest-facing)        |
-| POST   | `/api/invitations/:id/view`       | Record page open (geo tracked)       |
-| POST   | `/api/invitations/:id/rsvp`       | Submit RSVP                         |
-
-**RSVP body:**
-```json
-{ "status": "yes" | "no", "plus_one": 0 | 1 }
-```
-`plus_one` is only saved when the invitation has `plus_one_allowed=1` and `status="yes"`.
+| POST   | `/api/invitations/:id/view`       | Record page open                     |
 
 ### Auth
 
@@ -258,7 +250,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-    # Real client IP forwarding — required for geoip tracking
+    # Real client IP forwarding
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -365,7 +357,7 @@ crontab -e
 0 3 * * * cp /home/deploy/apps/wedding-site/server/data.db /home/deploy/backups/data-$(date +\%Y\%m\%d).db
 ```
 
-**First run:** On first startup with an empty database, 5 demo guests are automatically seeded with realistic 14-day open history. This only runs once (when the invitations table is empty).
+**First run:** Demo data is seeded automatically in development only (`NODE_ENV=development`). Production starts with an empty database.
 
 ---
 
@@ -375,9 +367,8 @@ Navigate to `https://yourdomain.com/admin` and log in with the `ADMIN_PASSWORD` 
 
 From the dashboard you can:
 - Create personalized invitation links for each guest
-- See who has opened their invitation (with country/city)
-- Track RSVP responses and +1 confirmations
-- View view statistics over time
+- See who has opened their invitation
+- View visit statistics over time
 
 ---
 
@@ -401,12 +392,6 @@ pm2 restore
 pm2 status           # Check server is running
 pm2 logs wedding-site  # Check for errors
 sudo nginx -t          # Check Nginx config
-```
-
-**geoip not resolving locations**
-Ensure `geoip-lite` is installed and its database is current:
-```bash
-cd server && node -e "require('geoip-lite').reloadData()"
 ```
 
 **Admin password forgotten**
