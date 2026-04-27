@@ -11,6 +11,7 @@ export default function Landing({ invitationId, onNavigate }) {
   const [invitation, setInvitation] = useState(null)
   const [scrollPhase, setScrollPhase] = useState(0)
   const heroRef = useRef(null)
+  const stickyRef = useRef(null)
   const rafRef = useRef(null)
   const viewedRef = useRef(false)
 
@@ -19,7 +20,7 @@ export default function Landing({ invitationId, onNavigate }) {
     if (!hero) return Promise.resolve()
     const heroTop = hero.offsetTop
     const heroHeight = hero.offsetHeight
-    const viewportH = window.innerHeight
+    const viewportH = stickyRef.current?.offsetHeight ?? window.innerHeight
     const scrollable = heroHeight - viewportH
     const target = heroTop + scrollable * targetFraction
     const start = window.scrollY
@@ -78,7 +79,7 @@ export default function Landing({ invitationId, onNavigate }) {
         if (!hero) return
         const heroTop = hero.offsetTop
         const heroHeight = hero.offsetHeight
-        const viewportH = window.innerHeight
+        const viewportH = stickyRef.current?.offsetHeight ?? window.innerHeight
         const scrollable = heroHeight - viewportH
         const scrolled = Math.max(0, window.scrollY - heroTop)
         const p = Math.min(100, scrollable > 0 ? (scrolled / scrollable) * 100 : 0)
@@ -98,6 +99,7 @@ export default function Landing({ invitationId, onNavigate }) {
       {/* Hero: 300dvh scroll container with sticky inner */}
       <div ref={heroRef} className="h-300dvh relative">
         <div
+          ref={stickyRef}
           className="h-screen-dvh sticky top-0 overflow-hidden"
           style={{ background: '#1F2A24' }}
         >

@@ -300,8 +300,10 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
       const envelopeEl = /** @type {HTMLElement} */ (envelopeBodyRef.current)
       const envelopeW = envelopeEl.offsetWidth * 0.9
       const envelopeH = envelopeEl.offsetHeight * 0.8
-      const vw = window.innerWidth
-      const vh = window.innerHeight
+      // climb up to the absolute-inset-0 wrapper which fills the sticky element
+      const container = envelopeBodyRef.current?.closest('[data-envelope-container]')
+      const vw = container?.offsetWidth  ?? window.innerWidth
+      const vh = container?.offsetHeight ?? window.innerHeight
       // Use the minimum of the two ratios (like object-contain)
       const scaleByW = envelopeW / vw
       const scaleByH = envelopeH / vh
@@ -353,7 +355,7 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
   const cardTranslateY = lerp(letterTranslateY * 0.3, 0, letterExpand)
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 10 }}>
+    <div data-envelope-container className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 10 }}>
       {/* Envelope wrapper — scale/opacity live here for the exit phase */}
       <div
         style={{
