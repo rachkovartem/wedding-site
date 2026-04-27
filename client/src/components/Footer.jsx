@@ -49,52 +49,12 @@ export default function Footer({ onAdminTrigger }) {
         }}
         aria-label="Монограмма"
       >
-        <svg viewBox="0 0 120 120" width="100" height="100" aria-hidden="true">
-          {/* Vine wreath */}
-          <circle cx="60" cy="60" r="52" fill="none" stroke="#4A5D3F" strokeWidth="1" opacity="0.5"/>
-          {/* Leaf decorations around wreath */}
-          <ellipse cx="60" cy="10" rx="8" ry="5" fill="#4A5D3F" opacity="0.6" transform="rotate(0,60,10)"/>
-          <ellipse cx="110" cy="60" rx="8" ry="5" fill="#4A5D3F" opacity="0.6" transform="rotate(90,110,60)"/>
-          <ellipse cx="60" cy="110" rx="8" ry="5" fill="#4A5D3F" opacity="0.6" transform="rotate(0,60,110)"/>
-          <ellipse cx="10" cy="60" rx="8" ry="5" fill="#4A5D3F" opacity="0.6" transform="rotate(90,10,60)"/>
-          {/* Grape clusters */}
-          <circle cx="60" cy="12" r="3" fill="#5C1F1F" opacity="0.7"/>
-          <circle cx="55" cy="8" r="2.5" fill="#5C1F1F" opacity="0.6"/>
-          <circle cx="65" cy="8" r="2.5" fill="#5C1F1F" opacity="0.6"/>
-          {/* Monogram letters */}
-          <text
-            x="35"
-            y="72"
-            fontFamily="'Marck Script', cursive"
-            fontSize="38"
-            fill="#A8864A"
-            opacity="0.95"
-          >
-            И
-          </text>
-          <text
-            x="52"
-            y="68"
-            fontFamily="Lora, Georgia, serif"
-            fontSize="14"
-            fill="#A8864A"
-            opacity="0.8"
-          >
-            &amp;
-          </text>
-          <text
-            x="62"
-            y="72"
-            fontFamily="'Marck Script', cursive"
-            fontSize="38"
-            fill="#A8864A"
-            opacity="0.95"
-          >
-            А
-          </text>
-          {/* Gold ring */}
-          <circle cx="60" cy="60" r="46" fill="none" stroke="#A8864A" strokeWidth="0.5" opacity="0.4" strokeDasharray="4 3"/>
-        </svg>
+        <img
+          src="/seal.png"
+          alt="Печать"
+          aria-hidden="true"
+          style={{ width: '140px', height: '140px', objectFit: 'contain', opacity: 0.85 }}
+        />
       </div>
 
       {/* Wedding details */}

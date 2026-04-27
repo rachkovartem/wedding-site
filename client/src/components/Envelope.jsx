@@ -263,14 +263,14 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
           <div
             className="text-center mb-4 font-script"
             style={{
-              color: '#D4B896',
+              color: '#F5E6CC',
               fontSize: 'clamp(1.2rem, 4vw, 2rem)',
               opacity: lerp(1, 0, sealBreak),
               letterSpacing: '0.05em',
             }}
           >
             {salutation || 'Дорогой'}{' '}
-            <span style={{ color: '#A8864A' }}>{guestName}</span>
+            <span>{guestName}</span>
           </div>
         )}
 
