@@ -377,96 +377,42 @@ const DAY_LABELS = ['22 июня, пн', '23 июня, вт']
  * @typedef {{ maxTemp: number, minTemp: number, precip: string, emoji?: string }} DayData
  */
 
+// Historical averages 2019–2024 (pre-computed, no runtime request needed)
+/** @type {DayData[]} */
+const CLIMATE_DATA = [
+  { maxTemp: 24, minTemp: 17, precip: '🌤 Возможен лёгкий дождь' },
+  { maxTemp: 25, minTemp: 17, precip: '🌤 Возможен лёгкий дождь' },
+]
+
 function WeatherWidget() {
-  const [status, setStatus] = React.useState(/** @type {'loading'|'done'|'error'} */ ('loading'))
+  const [status, setStatus] = React.useState(/** @type {'loading'|'done'|'error'} */ ('done'))
   const [isForecast, setIsForecast] = React.useState(false)
-  const [days, setDays] = React.useState(/** @type {DayData[]} */ ([]))
+  const [days, setDays] = React.useState(/** @type {DayData[]} */ (CLIMATE_DATA))
 
   React.useEffect(() => {
     const now = new Date()
-    const msUntilWedding = WEDDING_DAY1.getTime() - now.getTime()
-    const daysUntil = msUntilWedding / (1000 * 60 * 60 * 24)
-    const useForecast = daysUntil <= FORECAST_THRESHOLD_DAYS
+    const daysUntil = (WEDDING_DAY1.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    if (daysUntil > FORECAST_THRESHOLD_DAYS) return // use hardcoded climate data
 
-    if (useForecast) {
-      const url = 'https://api.open-meteo.com/v1/forecast?latitude=41.73&longitude=45.72&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FTbilisi&start_date=2026-06-22&end_date=2026-06-23'
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          const d = data.daily
-          /** @type {DayData[]} */
-          const parsed = [0, 1].map(i => {
-            const maxTemp = Math.round(d.temperature_2m_max[i])
-            const minTemp = Math.round(d.temperature_2m_min[i])
-            const prob = d.precipitation_probability_max[i]
-            const code = d.weathercode[i]
-            return {
-              maxTemp,
-              minTemp,
-              precip: `Дождь: ${prob}%`,
-              emoji: weatherEmoji(code),
-            }
-          })
-          setIsForecast(true)
-          setDays(parsed)
-          setStatus('done')
-        })
-        .catch(() => setStatus('error'))
-    } else {
-      const url = 'https://archive-api.open-meteo.com/v1/archive?latitude=41.73&longitude=45.72&start_date=2019-06-20&end_date=2024-06-25&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia%2FTbilisi'
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          const times = data.daily.time
-          const tmaxArr = data.daily.temperature_2m_max
-          const tminArr = data.daily.temperature_2m_min
-          const precipArr = data.daily.precipitation_sum
-
-          const june22 = times.reduce(
-            /** @param {number[]} acc @param {string} t @param {number} i */
-            (acc, t, i) => t.endsWith('-06-22') ? [...acc, i] : acc,
-            /** @type {number[]} */ ([])
-          )
-          const june23 = times.reduce(
-            /** @param {number[]} acc @param {string} t @param {number} i */
-            (acc, t, i) => t.endsWith('-06-23') ? [...acc, i] : acc,
-            /** @type {number[]} */ ([])
-          )
-
-          /**
-           * @param {number[]} indices
-           * @param {number[]} arr
-           */
-          const avg = (indices, arr) =>
-            indices.reduce((s, i) => s + arr[i], 0) / indices.length
-
-          const precipLabel = (mm) => {
-            if (mm < 1)  return '☀️ Дождь маловероятен'
-            if (mm < 7)  return '🌤 Возможен лёгкий дождь'
-            if (mm < 15) return '🌦 Дождливо'
-            return '🌧 Очень дождливо'
-          }
-
-          /** @type {DayData[]} */
-          const parsed = [
-            {
-              maxTemp: Math.round(avg(june22, tmaxArr)),
-              minTemp: Math.round(avg(june22, tminArr)),
-              precip: precipLabel(avg(june22, precipArr)),
-            },
-            {
-              maxTemp: Math.round(avg(june23, tmaxArr)),
-              minTemp: Math.round(avg(june23, tminArr)),
-              precip: precipLabel(avg(june23, precipArr)),
-            },
-          ]
-
-          setIsForecast(false)
-          setDays(parsed)
-          setStatus('done')
-        })
-        .catch(() => setStatus('error'))
-    }
+    // Within 14 days — switch to real forecast
+    setStatus('loading')
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=41.73&longitude=45.72&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FTbilisi&start_date=2026-06-22&end_date=2026-06-23'
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const d = data.daily
+        /** @type {DayData[]} */
+        const parsed = [0, 1].map(i => ({
+          maxTemp: Math.round(d.temperature_2m_max[i]),
+          minTemp: Math.round(d.temperature_2m_min[i]),
+          precip:  `Дождь: ${d.precipitation_probability_max[i]}%`,
+          emoji:   weatherEmoji(d.weathercode[i]),
+        }))
+        setIsForecast(true)
+        setDays(parsed)
+        setStatus('done')
+      })
+      .catch(() => setStatus('error'))
   }, [])
 
   if (status === 'error') return null
