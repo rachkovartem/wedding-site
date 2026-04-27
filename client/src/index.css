@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-deep: #1F2A24;
+  --color-bg-olive: #2D352C;
+  --color-fog: #7A8579;
+  --color-vine: #4A5D3F;
+  --color-vine-dark: #5C6B47;
+  --color-terracotta: #A85838;
+  --color-clay: #8B4A2E;
+  --color-wine: #5C1F1F;
+  --color-wine-light: #722F37;
+  --color-parchment: #D4B896;
+  --color-paper: #C9A876;
+  --color-gold: #A8864A;
+}
+
+/* Global font rules */
+html, body {
+  font-family: 'Lora', Georgia, serif;
+  background-color: #1F2A24;
+  color: #D4B896;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Font utilities */
+.font-script { font-family: 'Italianno', cursive; }
+.font-sc { font-family: 'Cormorant SC', Georgia, serif; }
+.font-georgian { font-family: 'Noto Serif Georgian', Georgia, serif; }
+
+/* dvh helper */
+.h-screen-dvh { height: calc(var(--vh, 1dvh) * 100); }
+.h-300dvh { height: calc(var(--vh, 1dvh) * 300); }
+
+/* Fog drift animation */
+@keyframes fogDrift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(30px); }
+  100% { transform: translateX(0); }
+}
+
+/* Envelope idle breathe */
+@keyframes breathe {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50% { transform: scale(1.015) rotate(-2deg); }
+}
+
+/* Vine sway */
+@keyframes sway {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+/* Paper texture background for letter */
+.paper-texture {
+  background-color: #C9A876;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1F2A24; }
+::-webkit-scrollbar-thumb { background: #4A5D3F; border-radius: 3px; }
+
+/* Auth modal shake animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}

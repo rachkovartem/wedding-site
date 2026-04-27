@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.production
+**/.env
+**/.env.local
+**/.env.production
+
+# Build output
+client/dist/
+
+# Playwright test artifacts
+client/test-results/
+client/playwright-report/
+
+# OS
+.DS_Store
+
+# IDE
+.idea/

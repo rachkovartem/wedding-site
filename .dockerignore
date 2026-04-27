@@ -1,0 +1,16 @@
+node_modules
+client/node_modules
+server/node_modules
+client/dist
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.*
+.git
+.github
+.DS_Store
+.idea
+client/e2e
+client/test-results
+server/__tests__
