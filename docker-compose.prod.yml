@@ -5,8 +5,6 @@ services:
       dockerfile: Dockerfile
     container_name: wedding-app
     restart: unless-stopped
-    ports:
-      - "3001:3001"
     volumes:
       - db_data:/data
     env_file:
@@ -14,7 +12,13 @@ services:
     environment:
       - NODE_ENV=production
       - DB_PATH=/data/data.db
+    networks:
+      - web
 
 volumes:
   db_data:
     driver: local
+
+networks:
+  web:
+    external: true
