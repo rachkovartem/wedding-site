@@ -366,7 +366,7 @@ export default function Letter({ invitation }) {
 // ─── Weather widget ─────────────────────────────────────────────────────────
 
 const WEDDING_DAY1 = new Date('2026-06-22T00:00:00')
-const FORECAST_THRESHOLD_DAYS = 16
+const FORECAST_THRESHOLD_DAYS = 14
 
 /** @param {number} code */
 function weatherEmoji(code) {
@@ -398,19 +398,16 @@ function WeatherWidget() {
     const daysUntil = msUntilWedding / (1000 * 60 * 60 * 24)
     const useForecast = daysUntil <= FORECAST_THRESHOLD_DAYS
 
-    const url = useForecast
-      ? 'https://api.open-meteo.com/v1/forecast?latitude=41.73&longitude=45.72&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FTbilisi&start_date=2026-06-22&end_date=2026-06-23'
-      : 'https://climate-api.open-meteo.com/v1/climate?latitude=41.73&longitude=45.72&start_date=2026-06-22&end_date=2026-06-23&models=MRI_AGCM3_2_S&daily=temperature_2m_max,temperature_2m_min,precipitation_sum'
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        const d = data.daily
-        /** @type {DayData[]} */
-        const parsed = [0, 1].map(i => {
-          const maxTemp = Math.round(d.temperature_2m_max[i])
-          const minTemp = Math.round(d.temperature_2m_min[i])
-          if (useForecast) {
+    if (useForecast) {
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=41.73&longitude=45.72&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FTbilisi&start_date=2026-06-22&end_date=2026-06-23'
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const d = data.daily
+          /** @type {DayData[]} */
+          const parsed = [0, 1].map(i => {
+            const maxTemp = Math.round(d.temperature_2m_max[i])
+            const minTemp = Math.round(d.temperature_2m_min[i])
             const prob = d.precipitation_probability_max[i]
             const code = d.weathercode[i]
             return {
@@ -419,20 +416,67 @@ function WeatherWidget() {
               precip: `Дождь: ${prob}%`,
               emoji: weatherEmoji(code),
             }
-          } else {
-            const sum = d.precipitation_sum[i]
-            return {
-              maxTemp,
-              minTemp,
-              precip: `Осадки: ${sum != null ? Number(sum).toFixed(1) : '0.0'} мм`,
-            }
-          }
+          })
+          setIsForecast(true)
+          setDays(parsed)
+          setStatus('done')
         })
-        setIsForecast(useForecast)
-        setDays(parsed)
-        setStatus('done')
-      })
-      .catch(() => setStatus('error'))
+        .catch(() => setStatus('error'))
+    } else {
+      const url = 'https://archive-api.open-meteo.com/v1/archive?latitude=41.73&longitude=45.72&start_date=2019-06-20&end_date=2024-06-25&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia%2FTbilisi'
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const times = data.daily.time
+          const tmaxArr = data.daily.temperature_2m_max
+          const tminArr = data.daily.temperature_2m_min
+          const precipArr = data.daily.precipitation_sum
+
+          const june22 = times.reduce(
+            /** @param {number[]} acc @param {string} t @param {number} i */
+            (acc, t, i) => t.endsWith('-06-22') ? [...acc, i] : acc,
+            /** @type {number[]} */ ([])
+          )
+          const june23 = times.reduce(
+            /** @param {number[]} acc @param {string} t @param {number} i */
+            (acc, t, i) => t.endsWith('-06-23') ? [...acc, i] : acc,
+            /** @type {number[]} */ ([])
+          )
+
+          /**
+           * @param {number[]} indices
+           * @param {number[]} arr
+           */
+          const avg = (indices, arr) =>
+            indices.reduce((s, i) => s + arr[i], 0) / indices.length
+
+          const precipLabel = (mm) => {
+            if (mm < 1)  return '☀️ Дождь маловероятен'
+            if (mm < 7)  return '🌤 Возможен лёгкий дождь'
+            if (mm < 15) return '🌦 Дождливо'
+            return '🌧 Очень дождливо'
+          }
+
+          /** @type {DayData[]} */
+          const parsed = [
+            {
+              maxTemp: Math.round(avg(june22, tmaxArr)),
+              minTemp: Math.round(avg(june22, tminArr)),
+              precip: precipLabel(avg(june22, precipArr)),
+            },
+            {
+              maxTemp: Math.round(avg(june23, tmaxArr)),
+              minTemp: Math.round(avg(june23, tminArr)),
+              precip: precipLabel(avg(june23, precipArr)),
+            },
+          ]
+
+          setIsForecast(false)
+          setDays(parsed)
+          setStatus('done')
+        })
+        .catch(() => setStatus('error'))
+    }
   }, [])
 
   if (status === 'error') return null
@@ -462,7 +506,7 @@ function WeatherWidget() {
         fontFamily: 'Cormorant SC, serif',
         marginBottom: '0.75rem',
       }}>
-        {isForecast ? 'Прогноз погоды' : 'Климат в июне'}
+        {isForecast ? 'Прогноз погоды' : 'Типичная погода в июне'}
       </p>
 
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
@@ -496,7 +540,7 @@ function WeatherWidget() {
           fontStyle: 'italic',
           marginTop: '0.5rem',
         }}>
-          Точный прогноз появится за 2 недели до праздника
+          Среднее за 2019–2024 · Точный прогноз появится за 2 недели
         </p>
       )}
     </div>
