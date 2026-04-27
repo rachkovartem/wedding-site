@@ -341,10 +341,10 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
       {/* Full-screen expanding card — sibling of the envelope wrapper */}
       {cardOpacity > 0 && (
         <div
+          className="paper-texture"
           style={{
             position: 'absolute',
             inset: '0',
-            background: '#D4B896',
             borderRadius: `${cardRadius}px`,
             transform: `scale(${cardScale}) translateY(${cardTranslateY}px)`,
             transformOrigin: 'center center',

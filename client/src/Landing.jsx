@@ -89,7 +89,7 @@ export default function Landing({ invitationId, onNavigate }) {
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80)',
+              backgroundImage: 'url(/mountains.jpg)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: 1,

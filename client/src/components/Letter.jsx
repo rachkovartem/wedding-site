@@ -39,7 +39,7 @@ export default function Letter({ invitation }) {
   const salutation = invitation?.salutation || 'Дорогой'
 
   return (
-    <div style={{ minHeight: '100vh', background: '#D4B896', position: 'relative' }}>
+    <div className="paper-texture" style={{ minHeight: '100vh', position: 'relative' }}>
 
       {/* Mobile vine background overlay — hidden on lg+ where the sidebar vine takes over */}
       <div
@@ -236,6 +236,9 @@ export default function Letter({ invitation }) {
                 </a>
               </div>
 
+              {/* Weather widget */}
+              <WeatherWidget />
+
               {/* Add to Calendar */}
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <AddToCalendar />
@@ -359,6 +362,146 @@ export default function Letter({ invitation }) {
   )
 }
 
+
+// ─── Weather widget ─────────────────────────────────────────────────────────
+
+const WEDDING_DAY1 = new Date('2026-06-22T00:00:00')
+const FORECAST_THRESHOLD_DAYS = 16
+
+/** @param {number} code */
+function weatherEmoji(code) {
+  if (code === 0) return '☀️'
+  if (code <= 2)  return '⛅'
+  if (code <= 3)  return '☁️'
+  if (code <= 49) return '🌫️'
+  if (code <= 59) return '🌦️'
+  if (code <= 69) return '🌧️'
+  if (code <= 79) return '🌨️'
+  if (code <= 82) return '🌧️'
+  return '⛈️'
+}
+
+const DAY_LABELS = ['22 июня, пн', '23 июня, вт']
+
+/**
+ * @typedef {{ maxTemp: number, minTemp: number, precip: string, emoji?: string }} DayData
+ */
+
+function WeatherWidget() {
+  const [status, setStatus] = React.useState(/** @type {'loading'|'done'|'error'} */ ('loading'))
+  const [isForecast, setIsForecast] = React.useState(false)
+  const [days, setDays] = React.useState(/** @type {DayData[]} */ ([]))
+
+  React.useEffect(() => {
+    const now = new Date()
+    const msUntilWedding = WEDDING_DAY1.getTime() - now.getTime()
+    const daysUntil = msUntilWedding / (1000 * 60 * 60 * 24)
+    const useForecast = daysUntil <= FORECAST_THRESHOLD_DAYS
+
+    const url = useForecast
+      ? 'https://api.open-meteo.com/v1/forecast?latitude=41.73&longitude=45.72&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FTbilisi&start_date=2026-06-22&end_date=2026-06-23'
+      : 'https://climate-api.open-meteo.com/v1/climate?latitude=41.73&longitude=45.72&start_date=2026-06-22&end_date=2026-06-23&models=MRI_AGCM3_2_S&daily=temperature_2m_max,temperature_2m_min,precipitation_sum'
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const d = data.daily
+        /** @type {DayData[]} */
+        const parsed = [0, 1].map(i => {
+          const maxTemp = Math.round(d.temperature_2m_max[i])
+          const minTemp = Math.round(d.temperature_2m_min[i])
+          if (useForecast) {
+            const prob = d.precipitation_probability_max[i]
+            const code = d.weathercode[i]
+            return {
+              maxTemp,
+              minTemp,
+              precip: `Дождь: ${prob}%`,
+              emoji: weatherEmoji(code),
+            }
+          } else {
+            const sum = d.precipitation_sum[i]
+            return {
+              maxTemp,
+              minTemp,
+              precip: `Осадки: ${sum != null ? Number(sum).toFixed(1) : '0.0'} мм`,
+            }
+          }
+        })
+        setIsForecast(useForecast)
+        setDays(parsed)
+        setStatus('done')
+      })
+      .catch(() => setStatus('error'))
+  }, [])
+
+  if (status === 'error') return null
+
+  if (status === 'loading') {
+    return (
+      <div data-testid="weather-widget" style={{ maxWidth: '340px', margin: '0 auto 2rem', textAlign: 'center' }}>
+        <p style={{
+          color: '#8B4A2E',
+          fontSize: '0.85rem',
+          fontFamily: 'Cormorant SC, serif',
+          letterSpacing: '0.1em',
+          fontStyle: 'italic',
+        }}>
+          загружается...
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div data-testid="weather-widget" style={{ maxWidth: '340px', margin: '0 auto 2rem', textAlign: 'center' }}>
+      <p style={{
+        color: '#8B4A2E',
+        fontSize: '0.85rem',
+        letterSpacing: '0.1em',
+        fontFamily: 'Cormorant SC, serif',
+        marginBottom: '0.75rem',
+      }}>
+        {isForecast ? 'Прогноз погоды' : 'Климат в июне'}
+      </p>
+
+      <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        {days.map((day, i) => (
+          <div
+            key={i}
+            style={{
+              background: 'rgba(92,31,31,0.06)',
+              borderRadius: '6px',
+              padding: '0.75rem 1rem',
+              minWidth: '120px',
+            }}
+          >
+            <p style={{ color: '#8B4A2E', fontSize: '0.8rem', fontStyle: 'italic', margin: '0 0 0.25rem' }}>
+              {DAY_LABELS[i]}
+            </p>
+            <p style={{ color: '#5C1F1F', fontSize: '1.1rem', fontWeight: 'bold', margin: '0 0 0.25rem' }}>
+              {day.emoji ? `${day.emoji} ${day.maxTemp}° / ${day.minTemp}°` : `${day.maxTemp}° / ${day.minTemp}°`}
+            </p>
+            <p style={{ color: '#8B4A2E', fontSize: '0.75rem', margin: 0 }}>
+              {day.precip}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {!isForecast && (
+        <p style={{
+          color: '#8B4A2E',
+          fontSize: '0.75rem',
+          fontStyle: 'italic',
+          marginTop: '0.5rem',
+        }}>
+          Точный прогноз появится за 2 недели до праздника
+        </p>
+      )}
+    </div>
+  )
+}
 
 // ─── Calendar event data ────────────────────────────────────────────────────
 const CAL_EVENT = {
