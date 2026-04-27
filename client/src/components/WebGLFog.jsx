@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 
 const PHOTO_URL =
   'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80'
@@ -219,8 +219,14 @@ function createFBO(gl, w, h) {
 
 export default function WebGLFog() {
   const canvasRef = useRef(/** @type {HTMLCanvasElement | null} */ (null))
+  const [mobile, setMobile] = useState(false)
 
   useEffect(() => {
+    setMobile(window.matchMedia('(hover: none)').matches)
+  }, [])
+
+  useEffect(() => {
+    if (mobile) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -408,7 +414,23 @@ export default function WebGLFog() {
       gl.deleteTexture(fboWrite.tex)
       gl.deleteFramebuffer(fboWrite.fbo)
     }
-  }, [])
+  }, [mobile])
+
+  if (mobile) {
+    return (
+      <div
+        data-testid="webgl-fog-mobile"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `url(${PHOTO_URL})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          zIndex: 1,
+        }}
+      />
+    )
+  }
 
   return (
     <canvas

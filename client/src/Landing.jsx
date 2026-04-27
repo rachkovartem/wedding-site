@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getInvitation, postView } from './api.js'
-import WebGLFog from './components/WebGLFog.jsx'
 import Envelope from './components/Envelope.jsx'
 import Letter from './components/Letter.jsx'
 import Footer from './components/Footer.jsx'
@@ -86,7 +85,16 @@ export default function Landing({ invitationId, onNavigate }) {
           className="h-screen-dvh sticky top-0 overflow-hidden"
           style={{ background: '#1F2A24' }}
         >
-          <WebGLFog />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1920&q=80)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              zIndex: 1,
+            }}
+          />
           <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} salutation={invitation?.salutation} onSealClick={handleSealClick} />
         </div>
       </div>
