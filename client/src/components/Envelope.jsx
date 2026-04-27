@@ -170,10 +170,7 @@ function SealCanvas({ sealBreak }) {
       width={800}
       height={800}
       style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, calc(-50% + 14px))',
+        display: 'block',
         width: '100px',
         height: '100px',
         pointerEvents: 'none',
@@ -183,9 +180,116 @@ function SealCanvas({ sealBreak }) {
 }
 
 /**
- * @param {{ scrollPhase: number, guestName?: string, salutation?: string, onSealClick?: () => void }} props
+ * Front face of the envelope (address side).
+ * Shown before scroll-driven flip reveals the wax seal back.
+ * @param {{ guestName?: string, salutation?: string }} props
  */
-export default function Envelope({ scrollPhase, guestName, salutation, onSealClick }) {
+function FrontFace({ guestName, salutation, onFlip }) {
+  return (
+    <div
+      onClick={onFlip}
+      style={{
+        background: '#C9A876',
+        borderRadius: '4px',
+        boxShadow: '4px 8px 32px rgba(0,0,0,0.4)',
+        padding: '0',
+        cursor: onFlip ? 'pointer' : 'default',
+        userSelect: 'none',
+        position: 'relative',
+        overflow: 'hidden',
+        aspectRatio: '380 / 260',
+        animation: 'envelopeWobble 3s ease-in-out infinite',
+      }}
+    >
+      {/* Decorative envelope border */}
+      <div style={{
+        position: 'absolute', inset: '6px',
+        border: '1px dashed rgba(168,134,74,0.4)',
+        borderRadius: '2px',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Diagonal stripe pattern in top-left corner (classic airmail style) */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, width: '40%', height: '100%',
+        background: 'repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(139,74,46,0.07) 6px, rgba(139,74,46,0.07) 12px)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Postage stamp — top right */}
+      <div style={{
+        position: 'absolute', top: '14px', right: '14px',
+        width: '52px', height: '64px',
+        background: '#F5E6CC',
+        border: '1px solid rgba(168,134,74,0.5)',
+        boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        gap: '2px',
+      }}>
+        {/* Mountains SVG */}
+        <svg width="34" height="22" viewBox="0 0 34 22">
+          <polygon points="0,22 8,6 16,22" fill="#4A5D3F" opacity="0.7"/>
+          <polygon points="10,22 20,2 30,22" fill="#5C6B47" opacity="0.8"/>
+          <polygon points="22,22 28,10 34,22" fill="#4A5D3F" opacity="0.6"/>
+          <rect x="0" y="18" width="34" height="4" fill="#A8864A" opacity="0.3"/>
+        </svg>
+        <span style={{ fontSize: '5px', color: '#8B4A2E', fontFamily: 'Cormorant SC, serif', letterSpacing: '0.05em' }}>ГРУЗИЯ</span>
+      </div>
+
+      {/* Address block — center */}
+      <div style={{
+        position: 'absolute',
+        top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        textAlign: 'center',
+      }}>
+        {guestName ? (
+          <>
+            <div style={{
+              fontFamily: 'Lora, serif', fontStyle: 'italic',
+              color: '#8B4A2E', fontSize: 'clamp(0.55rem, 1.8vw, 0.7rem)',
+              marginBottom: '4px', opacity: 0.8,
+            }}>
+              Кому:
+            </div>
+            <div className="font-script" style={{
+              color: '#5C1F1F',
+              fontSize: 'clamp(1rem, 4vw, 1.5rem)',
+              lineHeight: 1.2,
+            }}>
+              {salutation} {guestName}
+            </div>
+          </>
+        ) : (
+          <div className="font-sc" style={{
+            color: '#5C1F1F', fontSize: 'clamp(0.8rem, 3vw, 1.1rem)',
+            letterSpacing: '0.2em', opacity: 0.8,
+          }}>
+            ПРИГЛАШЕНИЕ
+          </div>
+        )}
+      </div>
+
+      {/* Flip hint — bottom center */}
+      <div style={{
+        position: 'absolute', bottom: '12px', left: 0, right: 0,
+        textAlign: 'center',
+        fontFamily: 'Lora, serif', fontStyle: 'italic',
+        color: '#8B4A2E', fontSize: 'clamp(0.6rem, 2vw, 0.75rem)',
+        opacity: 0.7,
+        animation: 'scrollHint 1.8s ease-in-out infinite',
+      }}>
+        ↓ прокрутите или нажмите ↓
+      </div>
+    </div>
+  )
+}
+
+/**
+ * @param {{ scrollPhase: number, guestName?: string, salutation?: string, onSealClick?: () => void, onFlipClick?: () => void }} props
+ */
+export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
   const [startScale, setStartScale] = useState(0.28)
@@ -209,15 +313,17 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
   }, [])
 
   // Phase calculations
-  const sealBreak = progress(p, 15, 35)    // 15-35%: seal breaks
-  const flapOpen = progress(p, 35, 55)      // 35-55%: flap opens
-  const letterRise   = progress(p, 55, 75)  // 55-75%: letter rises
-  const letterExpand = progress(p, 72, 97)  // 72-97%: card expands to full screen
-  const envelopeExit = progress(p, 90, 100) // 90-100%: envelope exits
+  const flipPhase    = progress(p,  0, 15)  //  0–15%:  envelope flips front→back
+  const sealBreak    = progress(p, 20, 38)  // 20–38%: seal breaks
+  const flapOpen     = progress(p, 38, 55)  // 38–55%: flap opens
+  const letterRise   = progress(p, 55, 75)  // 55–75%: letter rises
+  const letterExpand = progress(p, 72, 97)  // 72–97%: card expands to full screen
+  const envelopeExit = progress(p, 90, 100) // 90–100%: envelope exits
 
-  const isIdle = p < 15
+  const isIdle = p < 3  // idle only before any scroll
+  const sealClickable = flipPhase >= 0.9 && sealBreak === 0 && onSealClick
 
-  // Envelope container position
+  // Envelope container position — kept on the outermost wrapper
   const envelopeScale = lerp(1, 0, envelopeExit)
   const envelopeTranslateY = lerp(0, -60, envelopeExit)
   const envelopeOpacity = lerp(1, 0, envelopeExit)
@@ -248,93 +354,128 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
 
   return (
     <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 10 }}>
-      {/* Envelope wrapper — exits during envelopeExit phase */}
+      {/* Envelope wrapper — scale/opacity live here for the exit phase */}
       <div
         style={{
           transform: `scale(${envelopeScale}) translateY(${envelopeTranslateY}vh)`,
           opacity: envelopeOpacity,
           transition: 'none',
-          width: 'min(380px, 85vw)',
           position: 'relative',
         }}
       >
-        {/* Guest name above envelope */}
-        {guestName && (
+        {/* 3D flip container */}
+        <div style={{ perspective: '1200px', width: 'min(380px, 85vw)' }}>
           <div
-            className="text-center mb-4 font-script"
             style={{
-              color: '#F5E6CC',
-              fontSize: 'clamp(1.2rem, 4vw, 2rem)',
-              opacity: lerp(1, 0, sealBreak),
-              letterSpacing: '0.05em',
-            }}
-          >
-            {salutation || 'Дорогой'}{' '}
-            <span>{guestName}</span>
-          </div>
-        )}
-
-        {/* Envelope body */}
-        <div
-          ref={envelopeBodyRef}
-          className="relative"
-          onClick={isIdle && onSealClick ? onSealClick : undefined}
-          style={{
-            animation: isIdle ? 'breathe 3s ease-in-out infinite' : 'none',
-            transformOrigin: 'center',
-            cursor: isIdle && onSealClick ? 'pointer' : 'default',
-          }}
-        >
-          {/* Main envelope body */}
-          <svg viewBox="0 0 380 260" xmlns="http://www.w3.org/2000/svg" className="w-full drop-shadow-2xl">
-            {/* Envelope back */}
-            <rect x="0" y="0" width="380" height="260" rx="4" fill="#C9A876"/>
-            <rect x="0" y="0" width="380" height="260" rx="4" fill="none" stroke="#A8864A" strokeWidth="1.5" opacity="0.5"/>
-
-            {/* Bottom triangle fold */}
-            <polygon points="0,260 190,145 380,260" fill="#B8975E" opacity="0.8"/>
-
-            {/* Left fold */}
-            <polygon points="0,0 0,260 160,145" fill="#D4B896" opacity="0.5"/>
-
-            {/* Right fold */}
-            <polygon points="380,0 380,260 220,145" fill="#C0A060" opacity="0.4"/>
-
-            {/* Center diamond lines */}
-            <line x1="0" y1="260" x2="190" y2="145" stroke="#A8864A" strokeWidth="0.5" opacity="0.4"/>
-            <line x1="380" y1="260" x2="190" y2="145" stroke="#A8864A" strokeWidth="0.5" opacity="0.4"/>
-
-            {/* Decorative border inside */}
-            <rect x="8" y="8" width="364" height="244" rx="2" fill="none" stroke="#A8864A" strokeWidth="0.5" opacity="0.3" strokeDasharray="4 3"/>
-          </svg>
-
-          {/* Flap (opens via rotateX) */}
-          <div
-            className="absolute top-0 left-0 w-full"
-            style={{
-              perspective: '800px',
+              position: 'relative',
               transformStyle: 'preserve-3d',
+              transform: `rotateY(${lerp(0, 180, flipPhase)}deg)`,
             }}
           >
-            <svg
-              viewBox="0 0 380 140"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full"
+            {/* FRONT FACE — always in DOM, hidden once rotated past 90° */}
+            <div
               style={{
-                transform: `rotateX(${flapRotateX}deg)`,
-                transformOrigin: 'top center',
-                transformStyle: 'preserve-3d',
-                transition: 'none',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                position: flipPhase >= 1 ? 'absolute' : 'relative',
+                top: 0, left: 0, right: 0,
               }}
             >
-              <polygon points="0,0 380,0 190,135" fill="#C9A876"/>
-              <polygon points="0,0 380,0 190,135" fill="none" stroke="#A8864A" strokeWidth="1" opacity="0.4"/>
-              <polygon points="10,0 370,0 190,125" fill="#D4B896" opacity="0.3"/>
-            </svg>
-          </div>
+              <FrontFace
+                guestName={guestName}
+                salutation={salutation}
+                onFlip={onFlipClick}
+              />
+            </div>
 
-          {/* Wax seal — image that shatters on scroll */}
-          <SealCanvas sealBreak={sealBreak} />
+            {/* BACK FACE — existing envelope content (wax seal side) */}
+            <div
+              style={{
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+                position: flipPhase < 1 ? 'absolute' : 'relative',
+                top: 0, left: 0, right: 0,
+              }}
+            >
+              {/* Envelope body */}
+              <div
+                ref={envelopeBodyRef}
+                className="relative"
+                onClick={sealClickable ? onSealClick : undefined}
+                style={{
+                  animation: isIdle ? 'breathe 3s ease-in-out infinite' : 'none',
+                  transformOrigin: 'center',
+                  cursor: sealClickable ? 'pointer' : 'default',
+                }}
+              >
+                {/* Main envelope body */}
+                <svg viewBox="0 0 380 260" xmlns="http://www.w3.org/2000/svg" className="w-full drop-shadow-2xl">
+                  {/* Envelope back */}
+                  <rect x="0" y="0" width="380" height="260" rx="4" fill="#C9A876"/>
+                  <rect x="0" y="0" width="380" height="260" rx="4" fill="none" stroke="#A8864A" strokeWidth="1.5" opacity="0.5"/>
+
+                  {/* Bottom triangle fold */}
+                  <polygon points="0,260 190,145 380,260" fill="#B8975E" opacity="0.8"/>
+
+                  {/* Left fold */}
+                  <polygon points="0,0 0,260 160,145" fill="#D4B896" opacity="0.5"/>
+
+                  {/* Right fold */}
+                  <polygon points="380,0 380,260 220,145" fill="#C0A060" opacity="0.4"/>
+
+                  {/* Center diamond lines */}
+                  <line x1="0" y1="260" x2="190" y2="145" stroke="#A8864A" strokeWidth="0.5" opacity="0.4"/>
+                  <line x1="380" y1="260" x2="190" y2="145" stroke="#A8864A" strokeWidth="0.5" opacity="0.4"/>
+
+                  {/* Decorative border inside */}
+                  <rect x="8" y="8" width="364" height="244" rx="2" fill="none" stroke="#A8864A" strokeWidth="0.5" opacity="0.3" strokeDasharray="4 3"/>
+                </svg>
+
+
+                {/* Flap (opens via rotateX) */}
+                <div
+                  className="absolute top-0 left-0 w-full"
+                  style={{
+                    perspective: '800px',
+                    transformStyle: 'preserve-3d',
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 380 140"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-full"
+                    style={{
+                      transform: `rotateX(${flapRotateX}deg)`,
+                      transformOrigin: 'top center',
+                      transformStyle: 'preserve-3d',
+                      transition: 'none',
+                    }}
+                  >
+                    <polygon points="0,0 380,0 190,135" fill="#C9A876"/>
+                    <polygon points="0,0 380,0 190,135" fill="none" stroke="#A8864A" strokeWidth="1" opacity="0.4"/>
+                    <polygon points="10,0 370,0 190,125" fill="#D4B896" opacity="0.3"/>
+                  </svg>
+                </div>
+
+                {/* Wax seal — image that shatters on scroll */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    ...(sealBreak === 0 && flipPhase >= 1
+                      ? { animation: 'sealWobble 2.5s ease-in-out infinite' }
+                      : { transform: 'translate(-50%, calc(-50% + 14px))' }
+                    ),
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <SealCanvas sealBreak={sealBreak} />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -384,21 +525,6 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
         </div>
       )}
 
-      {/* Scroll hint */}
-      {p < 5 && (
-        <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center"
-          style={{
-            color: '#fff',
-            fontSize: '0.95rem',
-            fontFamily: 'Lora, serif',
-            letterSpacing: '0.1em',
-            textShadow: '0 1px 4px rgba(0,0,0,0.6)',
-          }}
-        >
-          <div style={{ animation: 'scrollHint 1.8s ease-in-out infinite' }}>↓ прокрутите ↓</div>
-        </div>
-      )}
     </div>
   )
 }

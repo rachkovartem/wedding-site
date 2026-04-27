@@ -14,6 +14,32 @@ export default function Landing({ invitationId, onNavigate }) {
   const rafRef = useRef(null)
   const viewedRef = useRef(false)
 
+  const handleFlipClick = () => {
+    const hero = heroRef.current
+    if (!hero) return
+    const heroTop = hero.offsetTop
+    const heroHeight = hero.offsetHeight
+    const viewportH = window.innerHeight
+    const scrollable = heroHeight - viewportH
+    const target = heroTop + scrollable * 0.18  // scroll to ~18% → flipPhase = 1
+
+    const start = window.scrollY
+    const distance = target - start
+    if (Math.abs(distance) < 10) return
+
+    const duration = 900
+    const startTime = performance.now()
+
+    function step(now) {
+      const elapsed = now - startTime
+      const t = Math.min(elapsed / duration, 1)
+      const ease = 1 - Math.pow(1 - t, 3)
+      window.scrollTo(0, start + distance * ease)
+      if (t < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }
+
   const handleSealClick = () => {
     const hero = heroRef.current
     if (!hero) return
@@ -95,7 +121,7 @@ export default function Landing({ invitationId, onNavigate }) {
               zIndex: 1,
             }}
           />
-          <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} salutation={invitation?.salutation} onSealClick={handleSealClick} />
+          <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} salutation={invitation?.salutation} onSealClick={handleSealClick} onFlipClick={handleFlipClick} />
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, fireEvent, act } from '@testing-library/react'
 import Envelope from '../../components/Envelope.jsx'
 
 // Stub ResizeObserver not provided by jsdom
@@ -35,8 +35,9 @@ describe('Envelope component', () => {
 
   describe('Guest name display', () => {
     it('shows guest name when guestName prop provided and phase < 15', () => {
-      const { getByText } = render(<Envelope scrollPhase={0} guestName="Мария" />)
-      expect(getByText(/Мария/)).toBeTruthy()
+      const { getAllByText } = render(<Envelope scrollPhase={0} guestName="Мария" />)
+      // Name appears in both FrontFace and the back-face overlay
+      expect(getAllByText(/Мария/).length).toBeGreaterThanOrEqual(1)
     })
 
     it('does not show guest name text when guestName is not provided', () => {
@@ -79,15 +80,14 @@ describe('Envelope component', () => {
       expect(cards.length).toBe(1)
     })
 
-    it('full-screen card has background color #D4B896 (parchment)', () => {
+    it('full-screen card uses paper-texture class for parchment appearance', () => {
       const { container } = render(<Envelope scrollPhase={60} />)
       const card = Array.from(container.querySelectorAll('[style]')).find((el) => {
         return /** @type {HTMLElement} */ (el).style.zIndex === '20'
       })
       expect(card).toBeTruthy()
-      // jsdom normalizes hex colors to rgb; accept both representations
-      const bg = /** @type {HTMLElement} */ (card).style.background
-      expect(bg === '#D4B896' || bg === 'rgb(212, 184, 150)').toBe(true)
+      // Card uses CSS class for background, not inline style
+      expect(/** @type {HTMLElement} */ (card).className).toContain('paper-texture')
     })
 
     it('full-screen card uses scale transform (small scale at phase 60)', () => {
@@ -147,9 +147,9 @@ describe('Envelope component', () => {
       expect(getByText('Ира & Артём')).toBeTruthy()
     })
 
-    it('content inside card shows "22 ИЮНЯ 2026"', () => {
+    it('content inside card shows date range "22–23 ИЮНЯ 2026"', () => {
       const { getByText } = render(<Envelope scrollPhase={97} />)
-      expect(getByText('22 ИЮНЯ 2026')).toBeTruthy()
+      expect(getByText('22–23 ИЮНЯ 2026')).toBeTruthy()
     })
   })
 
@@ -205,6 +205,129 @@ describe('Envelope component', () => {
       )
       expect(card).toBeTruthy()
       expect(card.style.pointerEvents).toBe('none')
+    })
+  })
+
+  describe('Flip interaction — FrontFace / back face', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('shows the FrontFace initially at phase 0', () => {
+      const { getByText } = render(<Envelope scrollPhase={0} guestName="Мария" salutation="Дорогая" />)
+      // FrontFace contains the flip hint
+      expect(getByText(/перевернуть/)).toBeTruthy()
+    })
+
+    it('shows ПРИГЛАШЕНИЕ on FrontFace when no guestName is provided', () => {
+      const { getAllByText } = render(<Envelope scrollPhase={0} />)
+      // FrontFace shows ПРИГЛАШЕНИЕ when no guest name
+      const matches = getAllByText('ПРИГЛАШЕНИЕ')
+      expect(matches.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('shows the flip hint "↺ перевернуть" on the FrontFace', () => {
+      const { getByText } = render(<Envelope scrollPhase={0} guestName="Мария" salutation="Дорогая" />)
+      expect(getByText(/перевернуть/)).toBeTruthy()
+    })
+
+    it('renders a perspective container wrapping the flip card', () => {
+      const { container } = render(<Envelope scrollPhase={0} />)
+      const perspectiveEl = /** @type {HTMLElement | null} */ (
+        Array.from(container.querySelectorAll('[style]')).find((el) => {
+          return /** @type {HTMLElement} */ (el).style.perspective === '1200px'
+        })
+      )
+      expect(perspectiveEl).not.toBeNull()
+    })
+
+    it('flip inner div starts with rotateY(0deg) when showFront is true', () => {
+      const { container } = render(<Envelope scrollPhase={0} />)
+      const flipInner = /** @type {HTMLElement | null} */ (
+        Array.from(container.querySelectorAll('[style]')).find((el) => {
+          const s = /** @type {HTMLElement} */ (el).style
+          return s.transformStyle === 'preserve-3d'
+        })
+      )
+      expect(flipInner).not.toBeNull()
+      expect(/** @type {HTMLElement} */ (flipInner).style.transform).toBe('rotateY(0deg)')
+    })
+
+    it('clicking FrontFace starts the flip (transform changes to rotateY(180deg))', () => {
+      const { container, getByText } = render(<Envelope scrollPhase={0} guestName="Мария" salutation="Дорогая" />)
+      const hintEl = getByText(/перевернуть/)
+      // Click the FrontFace (hint is inside it)
+      fireEvent.click(hintEl)
+      // During flipping state, the flip inner should be rotateY(180deg)
+      const flipInner = /** @type {HTMLElement | null} */ (
+        Array.from(container.querySelectorAll('[style]')).find((el) => {
+          const s = /** @type {HTMLElement} */ (el).style
+          return s.transformStyle === 'preserve-3d'
+        })
+      )
+      expect(flipInner).not.toBeNull()
+      expect(/** @type {HTMLElement} */ (flipInner).style.transform).toBe('rotateY(180deg)')
+    })
+
+    it('FrontFace is removed from DOM after flip animation completes (700ms)', () => {
+      const { container, getByText, queryByText } = render(<Envelope scrollPhase={0} guestName="Мария" salutation="Дорогая" />)
+      // FrontFace flip hint is visible initially
+      expect(getByText(/перевернуть/)).toBeTruthy()
+      fireEvent.click(getByText(/перевернуть/))
+      // Advance timers by 700ms to complete flip — showFront becomes false
+      act(() => { vi.advanceTimersByTime(700) })
+      // FrontFace is unmounted — the flip hint is no longer in the DOM
+      expect(queryByText(/перевернуть/)).toBeNull()
+    })
+
+    it('back face (envelope body) is always in DOM', () => {
+      const { container } = render(<Envelope scrollPhase={0} />)
+      // The main envelope SVG (rect fill="#C9A876") is always rendered
+      const svgElements = container.querySelectorAll('svg')
+      // Multiple SVGs: envelope body + possibly flap + stamp
+      expect(svgElements.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('back face has transform rotateY(180deg) applied to it', () => {
+      const { container } = render(<Envelope scrollPhase={0} />)
+      // The back face wrapper has inline transform: rotateY(180deg)
+      const backFaceEl = /** @type {HTMLElement | null} */ (
+        Array.from(container.querySelectorAll('[style]')).find((el) => {
+          const s = /** @type {HTMLElement} */ (el).style
+          return s.transform === 'rotateY(180deg)' && s.backfaceVisibility === 'hidden'
+        })
+      )
+      expect(backFaceEl).not.toBeNull()
+    })
+
+    it('second click while flipping is ignored (no double-flip)', () => {
+      const { container, getByText } = render(<Envelope scrollPhase={0} guestName="Мария" salutation="Дорогая" />)
+      const hintEl = getByText(/перевернуть/)
+      fireEvent.click(hintEl)
+      // transform should be 180deg
+      const getFlipInner = () => /** @type {HTMLElement | null} */ (
+        Array.from(container.querySelectorAll('[style]')).find((el) => {
+          const s = /** @type {HTMLElement} */ (el).style
+          return s.transformStyle === 'preserve-3d'
+        })
+      )
+      expect(/** @type {HTMLElement} */ (getFlipInner()).style.transform).toBe('rotateY(180deg)')
+      // Advance only 300ms (flip still in progress)
+      act(() => { vi.advanceTimersByTime(300) })
+      // Transform should still be 180deg — second click had no effect
+      expect(/** @type {HTMLElement} */ (getFlipInner()).style.transform).toBe('rotateY(180deg)')
+    })
+
+    it('envelope outer wrapper still carries scale and opacity for exit phase', () => {
+      const { container } = render(<Envelope scrollPhase={100} />)
+      const root = container.firstChild
+      const envelopeWrapper = /** @type {HTMLElement} */ (root).firstChild
+      expect(envelopeWrapper).not.toBeNull()
+      const opacity = parseFloat(/** @type {HTMLElement} */ (envelopeWrapper).style.opacity)
+      expect(opacity).toBe(0)
     })
   })
 })

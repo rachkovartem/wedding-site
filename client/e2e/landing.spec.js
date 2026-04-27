@@ -242,6 +242,75 @@ test.describe('AC-14: Mobile layout', () => {
   })
 })
 
+test.describe('Envelope flip interaction', () => {
+  test('envelope shows FrontFace (address side) with flip hint on initial load', async ({ page }) => {
+    await page.goto(BASE_URL + '/#/')
+    await page.waitForLoadState('networkidle')
+
+    // Flip hint should be visible before any interaction
+    await expect(page.getByText(/перевернуть/).first()).toBeVisible({ timeout: 5000 })
+  })
+
+  test('clicking the FrontFace flips to reveal the wax seal back', async ({ page }) => {
+    await page.goto(BASE_URL + '/#/')
+    await page.waitForLoadState('networkidle')
+
+    const flipHint = page.getByText(/перевернуть/).first()
+    await expect(flipHint).toBeVisible({ timeout: 5000 })
+
+    // Use force:true because the breathe animation on the sibling back-face
+    // causes Playwright stability detection to fire during the CSS transition
+    await flipHint.click({ force: true })
+
+    // After 700ms animation, FrontFace is removed — flip hint is no longer in DOM
+    await expect(flipHint).not.toBeVisible({ timeout: 3000 })
+  })
+
+  test('after flip, scroll hint "прокрутите" is still visible', async ({ page }) => {
+    await page.goto(BASE_URL + '/#/')
+    await page.waitForLoadState('networkidle')
+
+    // Perform flip
+    const flipHint = page.getByText(/перевернуть/).first()
+    await expect(flipHint).toBeVisible({ timeout: 5000 })
+    await flipHint.click({ force: true })
+
+    // Scroll hint should still be present (it's outside the flip container)
+    await expect(page.getByText(/прокрутите/).first()).toBeVisible({ timeout: 5000 })
+  })
+
+  test('personalized FrontFace shows guest name before flip', async ({ page, request }) => {
+    let invitationId = null
+    try {
+      await request.post(`${BASE_URL}/api/auth`, {
+        data: { password: process.env.ADMIN_PASSWORD || 'wedding2026' },
+      })
+      const createRes = await request.post(`${BASE_URL}/api/admin/invitations`, {
+        data: { guest_name: 'Иван Тест', salutation: 'Дорогой', plus_one_allowed: 0 },
+      })
+      if (createRes.ok()) {
+        const inv = await createRes.json()
+        invitationId = inv.id
+      }
+    } catch {
+      test.skip()
+      return
+    }
+
+    if (!invitationId) {
+      test.skip()
+      return
+    }
+
+    await page.goto(`${BASE_URL}/#/invite/${invitationId}`)
+    await page.waitForLoadState('networkidle')
+
+    // FrontFace should show "Кому:" and the guest name
+    await expect(page.getByText('Кому:').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/Иван Тест/).first()).toBeVisible({ timeout: 5000 })
+  })
+})
+
 test.describe('AC-6: Footer monogram admin trigger', () => {
   test('AC-6: footer monogram exists', async ({ page }) => {
     await page.goto(BASE_URL + '/#/')
