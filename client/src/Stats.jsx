@@ -562,7 +562,7 @@ export default function Stats({ onNavigate }) {
                           <td style={tdStyle}>{guest.view_count ?? 0}</td>
                           <td style={{ ...tdStyle, fontSize: '0.8rem', color: '#7A8579' }}>
                             {guest.last_viewed_at
-                              ? new Date(guest.last_viewed_at).toLocaleDateString('ru-RU')
+                              ? new Date(guest.last_viewed_at * 1000).toLocaleDateString('ru-RU')
                               : '—'}
                           </td>
                           <td style={{ ...tdStyle, color: '#A8864A', fontSize: '0.85rem' }}>
@@ -609,7 +609,7 @@ export default function Stats({ onNavigate }) {
                                     {guest.views.map((v, i) => (
                                       <tr key={i}>
                                         <td style={{ ...tdStyle, padding: '4px 8px', fontSize: '0.8rem', color: '#A8864A' }}>
-                                          {new Date(v.viewed_at).toLocaleString('ru-RU')}
+                                          {new Date(v.viewed_at * 1000).toLocaleString('ru-RU')}
                                         </td>
                                         <td style={{ ...tdStyle, padding: '4px 8px', fontSize: '0.8rem' }}>
                                           {v.city || '—'}

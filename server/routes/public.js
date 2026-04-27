@@ -26,7 +26,10 @@ router.post('/:id/view', (req, res) => {
   const invitation = getInvitation(req.db, req.params.id);
   if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
 
-  const ip = req.ip; // Trust proxy is set in main app
+  const ip =
+    req.headers['cf-connecting-ip'] ||
+    (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+    req.ip;
   const geo = ip ? geoip.lookup(ip) : null;
   const country = geo ? geo.country : null;
   const city = geo ? geo.city : null;
