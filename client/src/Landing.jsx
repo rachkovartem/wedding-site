@@ -43,8 +43,8 @@ export default function Landing({ invitationId, onNavigate }) {
 
   const handleSealClick = () => {
     const openLetter = () =>
-      // sealBreak phase (20%→38%) in 900ms, then rest to 97% in 2000ms
-      scrollTo(0.38, 900).then(() => scrollTo(0.97, 2000))
+      // sealBreak phase (20%→38%) in 900ms, then rest to 97% in 1500ms
+      scrollTo(0.38, 900).then(() => scrollTo(0.97, 1500))
 
     if (scrollPhase < 15) {
       // Flip (800ms) → pause (300ms) → seal shards (300ms) → open (2000ms)
@@ -96,8 +96,8 @@ export default function Landing({ invitationId, onNavigate }) {
 
   return (
     <div style={{ background: '#1F2A24', minHeight: '100vh' }}>
-      {/* Hero: 300dvh scroll container with sticky inner */}
-      <div ref={heroRef} className="h-300dvh relative">
+      {/* Hero: 200dvh scroll container with sticky inner */}
+      <div ref={heroRef} className="h-200dvh relative">
         <div
           ref={stickyRef}
           className="h-screen-dvh sticky top-0 overflow-hidden"

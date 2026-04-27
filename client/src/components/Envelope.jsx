@@ -292,34 +292,12 @@ function FrontFace({ guestName, salutation, onFlip }) {
 export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
-  const [startScale, setStartScale] = useState(0.28)
-
-  useEffect(() => {
-    const compute = () => {
-      if (!envelopeBodyRef.current) return
-      const envelopeEl = /** @type {HTMLElement} */ (envelopeBodyRef.current)
-      const envelopeW = envelopeEl.offsetWidth * 0.9
-      const envelopeH = envelopeEl.offsetHeight * 0.8
-      // climb up to the absolute-inset-0 wrapper which fills the sticky element
-      const container = envelopeBodyRef.current?.closest('[data-envelope-container]')
-      const vw = container?.offsetWidth  ?? window.innerWidth
-      const vh = container?.offsetHeight ?? window.innerHeight
-      // Use the minimum of the two ratios (like object-contain)
-      const scaleByW = envelopeW / vw
-      const scaleByH = envelopeH / vh
-      setStartScale(Math.min(scaleByW, scaleByH))
-    }
-    compute()
-    window.addEventListener('resize', compute)
-    return () => window.removeEventListener('resize', compute)
-  }, [])
 
   // Phase calculations
   const flipPhase    = progress(p,  0, 15)  //  0–15%:  envelope flips front→back
   const sealBreak    = progress(p, 20, 38)  // 20–38%: seal breaks
   const flapOpen     = progress(p, 38, 55)  // 38–55%: flap opens
   const letterRise   = progress(p, 55, 75)  // 55–75%: letter rises
-  const letterExpand = progress(p, 72, 97)  // 72–97%: card expands to full screen
   const envelopeExit = progress(p, 90, 100) // 90–100%: envelope exits
 
   const isIdle = p < 3  // idle only before any scroll
@@ -340,19 +318,6 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
 
   // Letter rise
   const letterTranslateY = lerp(0, -80, letterRise)
-
-  // Full-screen card parameters
-  const cardScale = lerp(startScale, 1, letterExpand)
-  const cardRadius = lerp(4, 0, letterExpand)
-  const cardOpacity = letterRise > 0 ? 1 : 0
-
-  // Content inside card fades in when card is already 40%+ expanded
-  const contentOpacity = letterExpand > 0.4
-    ? lerp(0, 1, (letterExpand - 0.4) / 0.6)
-    : 0
-
-  // Vertical offset: card rises with the letter then settles as it expands
-  const cardTranslateY = lerp(letterTranslateY * 0.3, 0, letterExpand)
 
   return (
     <div data-envelope-container className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 10 }}>
@@ -480,52 +445,6 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
           </div>
         </div>
       </div>
-
-      {/* Full-screen expanding card — sibling of the envelope wrapper */}
-      {cardOpacity > 0 && (
-        <div
-          className="paper-texture"
-          style={{
-            position: 'absolute',
-            inset: '0',
-            borderRadius: `${cardRadius}px`,
-            transform: `scale(${cardScale}) translateY(${cardTranslateY}px)`,
-            transformOrigin: 'center center',
-            opacity: cardOpacity,
-            zIndex: 20,
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-          }}
-        >
-          {/* Content fades in as card expands */}
-          <div style={{ opacity: contentOpacity, textAlign: 'center', padding: '2rem' }}>
-            <div
-              style={{
-                fontFamily: "'Marck Script', cursive",
-                color: '#5C1F1F',
-                fontSize: 'clamp(3rem, 8vw, 6rem)',
-                lineHeight: 1.1,
-                marginBottom: '0.5rem',
-              }}
-            >
-              Ира & Артём
-            </div>
-            <div
-              style={{
-                fontFamily: 'Cormorant SC, Georgia, serif',
-                color: '#8B4A2E',
-                fontSize: '1.1rem',
-                letterSpacing: '0.15em',
-              }}
-            >
-              22–23 ИЮНЯ 2026
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   )

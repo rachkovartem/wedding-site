@@ -43,6 +43,10 @@ h1, h2, h3, h4, h5, h6 {
   height: calc(var(--vh, 1dvh) * 300);
   height: calc(100svh * 3);
 }
+.h-200dvh {
+  height: calc(var(--vh, 1dvh) * 200);
+  height: calc(100svh * 2);
+}
 
 /* Fog drift animation */
 @keyframes fogDrift {
