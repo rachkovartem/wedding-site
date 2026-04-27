@@ -41,9 +41,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize admin password and seed demo data
+// Initialize admin password
 initAdminPassword(db);
-seed(db);
+// Seed demo data only in development (never in production)
+if (process.env.NODE_ENV !== 'production') {
+  seed(db);
+}
 
 // API Routes
 app.use('/api/invitations', publicRoutes);
