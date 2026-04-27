@@ -55,6 +55,13 @@ describe('Public API', () => {
     expect(res.body.plus_one_allowed).toBe(1);
   });
 
+  it('GET /api/invitations/:id includes salutation in response', async () => {
+    const res = await request.get(`/api/invitations/${testInvitationId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.salutation).toBeDefined();
+    expect(typeof res.body.salutation).toBe('string');
+  });
+
   it('GET /api/invitations/:id returns 404 for invalid id', async () => {
     const res = await request.get('/api/invitations/notexist');
     expect(res.status).toBe(404);

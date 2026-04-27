@@ -1,9 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Countdown from './Countdown.jsx'
-import RsvpForm from './RsvpForm.jsx'
 import Timeline from './Timeline.jsx'
 import GrapeVineLetter from './GrapeVineLetter.jsx'
-import { postRsvp } from '../api.js'
 
 const WEDDING_DATE = new Date('2026-06-22T14:00:00')
 const BRIDE = 'Ира'
@@ -67,21 +65,9 @@ function generateGoogleCalendarUrl() {
  */
 
 /**
- * @param {{ invitation: Invitation, invitationId: string | null }} props
+ * @param {{ invitation: Invitation }} props
  */
-export default function Letter({ invitation, invitationId }) {
-  const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
-
-  /**
-   * @param {string} status
-   * @param {boolean} plusOne
-   */
-  const handleRsvp = async (status, plusOne) => {
-    if (!invitationId) return
-    await postRsvp(invitationId, { status, plus_one: plusOne })
-    setRsvpSubmitted(true)
-  }
-
+export default function Letter({ invitation }) {
   const guestName = invitation?.guest_name
   const salutation = invitation?.salutation || 'Дорогой'
 
@@ -357,42 +343,6 @@ export default function Letter({ invitation, invitationId }) {
                   </p>
                 </div>
               </div>
-            </section>
-
-            <Divider />
-
-            {/* Section 6: RSVP */}
-            <section className="mb-16" id="rsvp">
-              <h2
-                className="text-center"
-                style={{
-                  color: '#5C1F1F',
-                  fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-                  marginBottom: '1rem',
-                }}
-              >
-                Ответное письмо
-              </h2>
-              <p
-                className="text-center"
-                style={{ color: '#8B4A2E', fontStyle: 'italic', marginBottom: '2rem' }}
-              >
-                Просим подтвердить ваше присутствие до 1 июня 2026
-              </p>
-              {invitationId ? (
-                <RsvpForm
-                  invitation={invitation}
-                  onSubmit={handleRsvp}
-                  submitted={rsvpSubmitted}
-                />
-              ) : (
-                <p
-                  className="text-center"
-                  style={{ color: '#8B4A2E', fontStyle: 'italic' }}
-                >
-                  Для ответа откройте персональную ссылку-приглашение.
-                </p>
-              )}
             </section>
 
             {/* Signature */}

@@ -14,6 +14,7 @@ router.get('/:id', (req, res) => {
   res.json({
     id: invitation.id,
     guest_name: invitation.guest_name,
+    salutation: invitation.salutation,
     plus_one_allowed: invitation.plus_one_allowed,
     rsvp_status: invitation.rsvp_status,
     rsvp_plus_one: invitation.rsvp_plus_one
