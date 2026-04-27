@@ -10,7 +10,7 @@ const GROOM = 'Артём'
 /** @type {Array<{ time: string, title: string, desc: string }>} */
 const PROGRAM_DAY1 = [
   { time: '14:00', title: 'Регистрация', desc: 'Торжественная церемония в духе грузинских традиций' },
-  { time: '15:30', title: 'Фуршет на закате', desc: 'Вино, саперави, хинкали — среди виноградников на закатном солнце' },
+  { time: '15:30', title: 'Фуршет на закате', desc: 'Закуски, вино и хинкали под открытым небом — пока солнце уходит за горы' },
   { time: '18:00', title: 'Праздничный ужин', desc: 'Длинный стол, кахетинские блюда, грузинские тосты от тамады' },
   { time: '20:00', title: 'Тосты и полифония', desc: 'Живая грузинская полифония, тосты за здоровье и любовь' },
   { time: '22:00', title: 'Танцы под звёздами', desc: 'Музыка, танцы, звёзды над горами Кахетии' },
@@ -19,8 +19,8 @@ const PROGRAM_DAY1 = [
 
 /** @type {Array<{ time: string, title: string, desc: string }>} */
 const PROGRAM_DAY2 = [
-  { time: '10:00', title: 'Утренний стол', desc: 'Ароматный кофе, свежий хлеб, сыры и лёгкий завтрак среди виноградников' },
-  { time: '12:00', title: 'Прогулка по виноградникам', desc: 'Экскурсия по виноградникам In Gremi, дегустация утреннего вина' },
+  { time: '10:00', title: 'Утренний стол', desc: 'Ароматный кофе, свежий хлеб и сыры — завтрак не спеша, с видом на горы' },
+  { time: '12:00', title: 'Прогулка по территории', desc: 'Прогулка по территории In Gremi, свежий воздух и утреннее вино — если хочется' },
   { time: '14:00', title: 'Обед', desc: 'Грузинский обед: мцвади, хачапури, зелень и домашние вина' },
   { time: '16:00', title: 'Свободное время', desc: 'Прогулки, бассейн, виды на Алазанскую долину и горы Кавказа' },
   { time: '18:00', title: 'Прощальный тост', desc: 'Последний стакан саперави, объятия и до новых встреч' },
@@ -41,7 +41,26 @@ export default function Letter({ invitation }) {
   return (
     <div style={{ minHeight: '100vh', background: '#D4B896', position: 'relative' }}>
 
-      <div className="max-w-6xl mx-auto px-4 pt-8 pb-0">
+      {/* Mobile vine background overlay — hidden on lg+ where the sidebar vine takes over */}
+      <div
+        className="lg:hidden"
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 0,
+          backgroundImage: 'url(/vine-vertical.png)',
+          backgroundRepeat: 'repeat-y',
+          backgroundSize: '40% auto',
+          backgroundPosition: 'left top',
+          opacity: 0.12,
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 12%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%)',
+        }}
+      />
+
+      <div className="max-w-6xl mx-auto px-4 pt-8 pb-0" style={{ position: 'relative', zIndex: 1 }}>
         {/* Two-column layout at lg+ */}
         <div className="flex flex-col lg:flex-row gap-8">
 
@@ -75,7 +94,7 @@ export default function Letter({ invitation }) {
                   lineHeight: 1.1,
                 }}
               >
-                {BRIDE} & {GROOM}
+                {BRIDE} и {GROOM}
               </div>
               <p
                 className="font-sc"
@@ -86,7 +105,7 @@ export default function Letter({ invitation }) {
                   marginBottom: '1.5rem',
                 }}
               >
-                ПРИГЛАШАЮТ ВАС РАЗДЕЛИТЬ ДЕНЬ, КОГДА ДВА СЕРДЦА СТАНУТ ОДНИМ
+                НАЧИНАЮТ ОДНУ ИСТОРИЮ НА ДВОИХ. И ОЧЕНЬ ХОТЯТ, ЧТОБЫ ВЫ БЫЛИ РЯДОМ
               </p>
             </section>
 
@@ -155,8 +174,7 @@ export default function Letter({ invitation }) {
                   fontStyle: 'italic',
                 }}
               >
-                Среди виноградников и гор Кахетии — винодельня In Gremi, где горы встречают небо,
-                а туман над Алазанской долиной хранит тысячелетние тайны.
+                In Gremi — уютный отель в горах Кахетии, где можно выдохнуть, замедлиться и просто побыть вместе. Горы, воздух, вид на Алазанскую долину — и никакой суеты.
               </p>
               {/* Polaroid photo */}
               <div
@@ -307,7 +325,7 @@ export default function Letter({ invitation }) {
                     Что посмотреть
                   </h3>
                   <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem', textAlign: 'left' }}>
-                    Монастырь Алаверди (XI в.), Сигнаги — город любви, Телави, Крепость Греми рядом с виноградниками.
+                    Монастырь Алаверди (XI в.), Сигнаги — город любви, Телави, Крепость Греми в пяти минутах от нас.
                   </p>
                 </div>
                 <div>
@@ -315,7 +333,7 @@ export default function Letter({ invitation }) {
                     Природа
                   </h3>
                   <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem', textAlign: 'left' }}>
-                    Алазанская долина на рассвете, туман над виноградниками, Большой Кавказский хребет на горизонте.
+                    Алазанская долина на рассвете, туман над холмами, Большой Кавказский хребет на горизонте.
                   </p>
                 </div>
               </div>
@@ -346,7 +364,7 @@ export default function Letter({ invitation }) {
 const CAL_EVENT = {
   title:       'Свадьба Иры и Артёма',
   location:    'In Gremi, Kakheti, Georgia',
-  description: 'Вы приглашены на свадьбу Иры и Артёма среди виноградников и гор Кахетии.',
+  description: 'Вы приглашены на свадьбу Иры и Артёма — два дня в горах Кахетии с теми, кто важен.',
   // Asia/Tbilisi = UTC+4; 14:00 local = 10:00 UTC
   startUtc:    '20260622T100000Z',
   endUtc:      '20260623T190000Z',
