@@ -1,21 +1,35 @@
-name: Deploy to VPS
+name: Deploy
 
 on:
   push:
-    branches: [main]
+    tags: ['v*.*.*']
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: PROD
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSHKEY }}
-          port: 22
-          script: |
-            cd /home/rycha/wedding-site
-            git pull origin main
-            docker compose up -d --build
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            cd ~/wedding-site &&
+            git fetch origin &&
+            git checkout ${{ github.ref_name }} &&
+            cat > .env <<'ENVEOF'
+          PORT=${{ secrets.PORT }}
+          NODE_ENV=production
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+          DB_PATH=/data/data.db
+          ENVEOF
+            docker compose -f docker-compose.prod.yml build &&
+            docker compose -f docker-compose.prod.yml up -d --force-recreate &&
+            docker image prune -f
+          "
