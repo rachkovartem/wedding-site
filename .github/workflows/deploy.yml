@@ -23,7 +23,6 @@ jobs:
             git fetch origin &&
             git checkout ${{ github.ref_name }} &&
             cat > .env <<'ENVEOF'
-          PORT=${{ secrets.PORT }}
           NODE_ENV=production
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
