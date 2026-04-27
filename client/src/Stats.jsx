@@ -1,27 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
-  PieChart,
-  Pie,
-  Cell,
   LineChart,
   Line,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts'
 import { getAdminStats, postLogout } from './api.js'
 import AuthModal from './components/AuthModal.jsx'
 
 const SERIF_FONT = "'Lora', Georgia, serif"
-
-/** @type {{ yes: string, no: string, pending: string }} */
-const RSVP_COLORS = {
-  yes: '#4A5D3F',
-  no: '#A85838',
-  pending: '#7A8579',
-}
 
 /** @param {{ label: string, value: string | number, sub?: string }} props */
 function KpiCard({ label, value, sub }) {
@@ -70,14 +59,11 @@ function KpiCard({ label, value, sub }) {
  * @typedef {{
  *   total_invitations: number,
  *   opened_invitations: number,
- *   confirmed_guests: number,
  *   total_views: number,
- *   rsvp_breakdown: { yes_count: number, no_count: number, pending_count: number },
  *   views_per_day: Array<{ date: string, count: number }>,
  *   guests: Array<{
  *     id: string,
  *     guest_name: string,
- *     rsvp_status: string | null,
  *     view_count: number,
  *     last_viewed_at: number | null,
  *     views: Array<{ id: number, invitation_id: string, viewed_at: number, ip_address: string, country: string, city: string, user_agent: string }>
@@ -106,7 +92,6 @@ export default function Stats({ onNavigate }) {
   // Table state
   const [sortKey, setSortKey] = useState('guest_name')
   const [sortDir, setSortDir] = useState('asc')
-  const [filterStatus, setFilterStatus] = useState('all')
   const [expandedRows, setExpandedRows] = useState(new Set())
 
   const loadStats = useCallback(async () => {
@@ -194,31 +179,15 @@ export default function Stats({ onNavigate }) {
     borderBottom: '1px solid rgba(168,134,74,0.1)',
   }
 
-  // Prepare data for charts
-  const pieData = stats?.rsvp_breakdown
-    ? [
-        { name: 'Придут', value: stats.rsvp_breakdown.yes_count, key: 'yes' },
-        { name: 'Не придут', value: stats.rsvp_breakdown.no_count, key: 'no' },
-        { name: 'Ожидается', value: stats.rsvp_breakdown.pending_count, key: 'pending' },
-      ].filter((d) => d.value > 0)
-    : []
-
-  // Sort and filter guests
+  // Sort guests
   const guests = stats?.guests ?? []
-  const filteredGuests = filterStatus === 'all'
-    ? guests
-    : guests.filter((g) => (g.rsvp_status ?? 'pending') === filterStatus)
 
-  const sortedGuests = [...filteredGuests].sort((a, b) => {
+  const sortedGuests = [...guests].sort((a, b) => {
     let av, bv
     switch (sortKey) {
       case 'guest_name':
         av = a.guest_name.toLowerCase()
         bv = b.guest_name.toLowerCase()
-        break
-      case 'rsvp_status':
-        av = a.rsvp_status ?? 'pending'
-        bv = b.rsvp_status ?? 'pending'
         break
       case 'view_count':
         av = a.view_count ?? 0
@@ -318,84 +287,14 @@ export default function Stats({ onNavigate }) {
                 value={stats.opened_invitations}
                 sub={`${openedPct}%`}
               />
-              <KpiCard label="Подтверждено" value={stats.confirmed_guests} />
-              <KpiCard label="Отказались" value={stats.rsvp_breakdown?.no_count || 0} />
             </div>
 
             {/* Charts row */}
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '1.5rem',
                 marginBottom: '2rem',
               }}
             >
-              {/* Pie chart — RSVP breakdown */}
-              <div
-                style={{
-                  background: '#2D352C',
-                  borderRadius: '4px',
-                  padding: '1.5rem',
-                  border: '1px solid rgba(168,134,74,0.2)',
-                }}
-              >
-                <h2
-                  style={{
-                    fontFamily: 'Cormorant Garamond, Georgia, serif',
-                    color: '#A8864A',
-                    fontSize: '1.1rem',
-                    marginBottom: '1rem',
-                    marginTop: 0,
-                  }}
-                >
-                  Распределение RSVP
-                </h2>
-                {pieData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={220}>
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}`}
-                        labelLine={true}
-                        style={{ fontFamily: SERIF_FONT, fontSize: '0.75rem' }}
-                      >
-                        {pieData.map((entry) => (
-                          <Cell
-                            key={entry.key}
-                            fill={RSVP_COLORS[entry.key]}
-                          />
-                        ))}
-                      </Pie>
-                      <Legend
-                        formatter={(value) => (
-                          <span style={{ fontFamily: SERIF_FONT, fontSize: '0.8rem', color: '#D4B896' }}>
-                            {value}
-                          </span>
-                        )}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: '#2D352C',
-                          border: '1px solid #A8864A',
-                          borderRadius: '3px',
-                          fontFamily: SERIF_FONT,
-                          color: '#D4B896',
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p style={{ color: '#7A8579', textAlign: 'center', fontStyle: 'italic' }}>
-                    Нет данных
-                  </p>
-                )}
-              </div>
-
               {/* Line chart — views per day */}
               <div
                 style={{
@@ -469,11 +368,6 @@ export default function Stats({ onNavigate }) {
               <div
                 style={{
                   padding: '1.5rem 1.5rem 0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '1rem',
                 }}
               >
                 <h2
@@ -486,26 +380,6 @@ export default function Stats({ onNavigate }) {
                 >
                   Список гостей
                 </h2>
-                {/* Filter */}
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  style={{
-                    background: '#1F2A24',
-                    border: '1px solid rgba(168,134,74,0.4)',
-                    borderRadius: '3px',
-                    padding: '6px 12px',
-                    color: '#D4B896',
-                    fontFamily: SERIF_FONT,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <option value="all">Все</option>
-                  <option value="yes">Придут</option>
-                  <option value="no">Не придут</option>
-                  <option value="pending">Ожидается</option>
-                </select>
               </div>
 
               <div style={{ overflowX: 'auto', padding: '0 1.5rem 1.5rem' }}>
@@ -514,9 +388,6 @@ export default function Stats({ onNavigate }) {
                     <tr>
                       <th style={thStyle} onClick={() => handleSort('guest_name')}>
                         Имя {sortKey === 'guest_name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-                      </th>
-                      <th style={thStyle} onClick={() => handleSort('rsvp_status')}>
-                        RSVP {sortKey === 'rsvp_status' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
                       </th>
                       <th style={thStyle} onClick={() => handleSort('view_count')}>
                         Просмотров {sortKey === 'view_count' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
@@ -540,25 +411,6 @@ export default function Stats({ onNavigate }) {
                           onClick={() => toggleRow(guest.id)}
                         >
                           <td style={tdStyle}>{guest.guest_name}</td>
-                          <td style={tdStyle}>
-                            <span
-                              style={{
-                                color:
-                                  guest.rsvp_status === 'yes'
-                                    ? '#4A5D3F'
-                                    : guest.rsvp_status === 'no'
-                                    ? '#A85838'
-                                    : '#7A8579',
-                                fontFamily: 'Cormorant SC, Georgia, serif',
-                              }}
-                            >
-                              {guest.rsvp_status === 'yes'
-                                ? 'Придёт'
-                                : guest.rsvp_status === 'no'
-                                ? 'Не придёт'
-                                : 'Ожидается'}
-                            </span>
-                          </td>
                           <td style={tdStyle}>{guest.view_count ?? 0}</td>
                           <td style={{ ...tdStyle, fontSize: '0.8rem', color: '#7A8579' }}>
                             {guest.last_viewed_at
@@ -573,7 +425,7 @@ export default function Stats({ onNavigate }) {
                         {expandedRows.has(guest.id) && (
                           <tr>
                             <td
-                              colSpan={5}
+                              colSpan={4}
                               style={{
                                 padding: '0.75rem 1.5rem',
                                 background: 'rgba(31,42,36,0.5)',
@@ -633,10 +485,10 @@ export default function Stats({ onNavigate }) {
                     {sortedGuests.length === 0 && (
                       <tr>
                         <td
-                          colSpan={5}
+                          colSpan={4}
                           style={{ ...tdStyle, textAlign: 'center', color: '#7A8579', fontStyle: 'italic', padding: '2rem' }}
                         >
-                          Нет гостей с таким статусом
+                          Нет гостей
                         </td>
                       </tr>
                     )}
