@@ -292,6 +292,23 @@ function FrontFace({ guestName, salutation, onFlip }) {
 export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
+  const [startScale, setStartScale] = useState(0.28)
+
+  useEffect(() => {
+    const compute = () => {
+      if (!envelopeBodyRef.current) return
+      const envelopeEl = envelopeBodyRef.current
+      const envelopeW = envelopeEl.offsetWidth * 0.9
+      const envelopeH = envelopeEl.offsetHeight * 0.8
+      const container = envelopeEl.closest('[data-envelope-container]')
+      const vw = container?.offsetWidth  ?? window.innerWidth
+      const vh = container?.offsetHeight ?? window.innerHeight
+      setStartScale(Math.min(envelopeW / vw, envelopeH / vh))
+    }
+    compute()
+    window.addEventListener('resize', compute)
+    return () => window.removeEventListener('resize', compute)
+  }, [])
 
   // Phase calculations
   const flipPhase    = progress(p,  0, 15)  //  0–15%:  envelope flips front→back
@@ -318,6 +335,13 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
 
   // Letter rise
   const letterTranslateY = lerp(0, -80, letterRise)
+
+  // Expanding card phase
+  const letterExpand   = progress(p, 72, 97)
+  const cardScale      = lerp(startScale, 1, letterExpand)
+  const cardRadius     = lerp(4, 0, letterExpand)
+  const cardOpacity    = letterRise > 0 ? 1 : 0
+  const cardTranslateY = lerp(letterTranslateY * 0.3, 0, letterExpand)
 
   return (
     <div data-envelope-container className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 10 }}>
@@ -445,6 +469,23 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
           </div>
         </div>
       </div>
+
+      {cardOpacity > 0 && (
+        <div
+          className="paper-texture"
+          style={{
+            position: 'absolute',
+            inset: '0',
+            borderRadius: `${cardRadius}px`,
+            transform: `scale(${cardScale}) translateY(${cardTranslateY}px)`,
+            transformOrigin: 'center center',
+            opacity: cardOpacity,
+            zIndex: 20,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
 
     </div>
   )

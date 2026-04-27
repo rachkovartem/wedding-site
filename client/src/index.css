@@ -115,3 +115,12 @@ h1, h2, h3, h4, h5, h6 {
   0%, 100% { transform: translateY(0); opacity: 0.7; }
   50% { transform: translateY(6px); opacity: 1; }
 }
+
+@keyframes letterReveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.letter-overlay {
+  animation: letterReveal 0.35s ease-out both;
+}

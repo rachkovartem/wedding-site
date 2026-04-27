@@ -10,6 +10,7 @@ import Footer from './components/Footer.jsx'
 export default function Landing({ invitationId, onNavigate }) {
   const [invitation, setInvitation] = useState(null)
   const [scrollPhase, setScrollPhase] = useState(0)
+  const [letterOpen, setLetterOpen] = useState(false)
   const heroRef = useRef(null)
   const stickyRef = useRef(null)
   const rafRef = useRef(null)
@@ -57,6 +58,10 @@ export default function Landing({ invitationId, onNavigate }) {
   }
 
   const handleFlipClick = handleSealClick
+
+  useEffect(() => {
+    if (scrollPhase >= 97 && !letterOpen) setLetterOpen(true)
+  }, [scrollPhase, letterOpen])
 
   useEffect(() => {
     if (!invitationId) return
@@ -117,13 +122,21 @@ export default function Landing({ invitationId, onNavigate }) {
         </div>
       </div>
 
-      {/* Letter content — flows naturally below hero, marginTop closes any sub-pixel gap */}
-      <div style={{ marginTop: '-2px' }}>
-        <Letter invitation={invitation} invitationId={invitationId} />
-      </div>
-
-      {/* Footer with hidden admin trigger */}
-      <Footer onAdminTrigger={() => onNavigate('admin')} />
+      {letterOpen && (
+        <div
+          className="paper-texture letter-overlay"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <Letter invitation={invitation} invitationId={invitationId} />
+          <Footer onAdminTrigger={() => onNavigate('admin')} />
+        </div>
+      )}
     </div>
   )
 }
