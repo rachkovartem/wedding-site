@@ -15,6 +15,33 @@ export default function Landing({ invitationId, onNavigate }) {
   const rafRef = useRef(null)
   const viewedRef = useRef(false)
 
+  const handleSealClick = () => {
+    const hero = heroRef.current
+    if (!hero) return
+    const heroTop = hero.offsetTop
+    const heroHeight = hero.offsetHeight
+    const viewportH = window.innerHeight
+    const scrollable = heroHeight - viewportH
+    const target = heroTop + scrollable * 0.97
+
+    const start = window.scrollY
+    const distance = target - start
+    if (Math.abs(distance) < 10) return
+
+    const duration = 2600
+    const startTime = performance.now()
+
+    function step(now) {
+      const elapsed = now - startTime
+      const t = Math.min(elapsed / duration, 1)
+      // easeOutCubic — starts at full speed, decelerates smoothly
+      const ease = 1 - Math.pow(1 - t, 3)
+      window.scrollTo(0, start + distance * ease)
+      if (t < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }
+
   useEffect(() => {
     if (!invitationId) return
     getInvitation(invitationId)
@@ -60,7 +87,7 @@ export default function Landing({ invitationId, onNavigate }) {
           style={{ background: '#1F2A24' }}
         >
           <WebGLFog />
-          <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} />
+          <Envelope scrollPhase={scrollPhase} guestName={invitation?.guest_name} onSealClick={handleSealClick} />
         </div>
       </div>
 

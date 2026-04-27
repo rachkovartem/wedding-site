@@ -65,7 +65,7 @@ export default function Footer({ onAdminTrigger }) {
           <text
             x="35"
             y="72"
-            fontFamily="Italianno, cursive"
+            fontFamily="'Marck Script', cursive"
             fontSize="38"
             fill="#A8864A"
             opacity="0.95"
@@ -85,7 +85,7 @@ export default function Footer({ onAdminTrigger }) {
           <text
             x="62"
             y="72"
-            fontFamily="Italianno, cursive"
+            fontFamily="'Marck Script', cursive"
             fontSize="38"
             fill="#A8864A"
             opacity="0.95"
@@ -106,12 +106,6 @@ export default function Footer({ onAdminTrigger }) {
           Ира & Артём
         </p>
         <p
-          className="font-georgian"
-          style={{ color: '#7A8579', fontSize: '0.85rem', marginBottom: '8px' }}
-        >
-          22 ივნისი, 2026 · In Gremi · კახეთი
-        </p>
-        <p
           style={{
             fontFamily: 'Lora, Georgia, serif',
             color: '#7A8579',
@@ -120,7 +114,7 @@ export default function Footer({ onAdminTrigger }) {
             marginBottom: '0.5rem',
           }}
         >
-          22 июня 2026 · Кахетия, Грузия
+          22–23 июня 2026 · In Gremi · Кахетия, Грузия
         </p>
         <p
           style={{

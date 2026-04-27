@@ -29,9 +29,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Font utilities */
-.font-script { font-family: 'Italianno', cursive; }
+.font-script { font-family: 'Marck Script', cursive; }
 .font-sc { font-family: 'Cormorant SC', Georgia, serif; }
-.font-georgian { font-family: 'Noto Serif Georgian', Georgia, serif; }
 
 /* dvh helper */
 .h-screen-dvh { height: calc(var(--vh, 1dvh) * 100); }
@@ -76,4 +75,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .shake {
   animation: shake 0.4s ease-in-out;
+}
+
+/* Scroll hint vertical pulse */
+@keyframes scrollHint {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(6px); opacity: 1; }
 }

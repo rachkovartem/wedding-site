@@ -10,13 +10,22 @@ const BRIDE = 'Ира'
 const GROOM = 'Артём'
 
 /** @type {Array<{ time: string, title: string, desc: string }>} */
-const PROGRAM = [
+const PROGRAM_DAY1 = [
   { time: '14:00', title: 'Регистрация', desc: 'Торжественная церемония в духе грузинских традиций' },
   { time: '15:30', title: 'Фуршет на закате', desc: 'Вино, саперави, хинкали — среди виноградников на закатном солнце' },
   { time: '18:00', title: 'Праздничный ужин', desc: 'Длинный стол, кахетинские блюда, грузинские тосты от тамады' },
   { time: '20:00', title: 'Тосты и полифония', desc: 'Живая грузинская полифония, тосты за здоровье и любовь' },
   { time: '22:00', title: 'Танцы под звёздами', desc: 'Музыка, танцы, звёзды над горами Кахетии' },
   { time: '00:00', title: 'Поздний стол', desc: 'Чурчхела, сыры, оставшееся вино и тёплые разговоры' },
+]
+
+/** @type {Array<{ time: string, title: string, desc: string }>} */
+const PROGRAM_DAY2 = [
+  { time: '10:00', title: 'Утренний стол', desc: 'Ароматный кофе, свежий хлеб, сыры и лёгкий завтрак среди виноградников' },
+  { time: '12:00', title: 'Прогулка по виноградникам', desc: 'Экскурсия по виноградникам In Gremi, дегустация утреннего вина' },
+  { time: '14:00', title: 'Обед', desc: 'Грузинский обед: мцвади, хачапури, зелень и домашние вина' },
+  { time: '16:00', title: 'Свободное время', desc: 'Прогулки, бассейн, виды на Алазанскую долину и горы Кавказа' },
+  { time: '18:00', title: 'Прощальный тост', desc: 'Последний стакан саперави, объятия и до новых встреч' },
 ]
 
 function generateICS() {
@@ -26,8 +35,8 @@ function generateICS() {
     'PRODID:-//Wedding Ira & Artem//RU',
     'BEGIN:VEVENT',
     'DTSTART:20260622T140000',
-    'DTEND:20260622T230000',
-    'SUMMARY:Свадьба Иры и Артёма',
+    'DTEND:20260623T230000',
+    'SUMMARY:Свадьба Иры и Артёма — 22–23 июня',
     'LOCATION:In Gremi\\, Kakheti\\, Georgia',
     'DESCRIPTION:Вы приглашены на свадьбу Иры и Артёма среди гор Кахетии',
     'END:VEVENT',
@@ -40,6 +49,17 @@ function generateICS() {
   a.download = 'wedding-ira-artem.ics'
   a.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+function generateGoogleCalendarUrl() {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: 'Свадьба Иры и Артёма',
+    dates: '20260622T140000/20260623T230000',
+    details: 'Вы приглашены на свадьбу Иры и Артёма среди виноградников и гор Кахетии. In Gremi, Кахетия, Грузия.',
+    location: 'In Gremi, Kakheti, Georgia',
+  })
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
 /**
@@ -91,12 +111,6 @@ export default function Letter({ invitation, invitationId }) {
               >
                 {BRIDE} & {GROOM}
               </div>
-              <div
-                className="font-georgian text-center mb-2"
-                style={{ color: '#8B4A2E', fontSize: '1rem', letterSpacing: '0.15em' }}
-              >
-                ირა & არტიომი
-              </div>
               <p
                 className="font-sc"
                 style={{
@@ -113,18 +127,6 @@ export default function Letter({ invitation, invitationId }) {
                   Дорогой/Дорогая {guestName},
                 </p>
               )}
-              <p
-                style={{
-                  color: '#5C1F1F',
-                  fontSize: '1rem',
-                  lineHeight: 1.8,
-                  maxWidth: '500px',
-                  margin: '1rem auto 0',
-                  fontStyle: 'italic',
-                }}
-              >
-                среди виноградников и гор Кахетии мы зовём вас разделить с нами этот особенный день.
-              </p>
             </section>
 
             <Divider />
@@ -146,16 +148,10 @@ export default function Letter({ invitation, invitationId }) {
                   color: '#8B4A2E',
                   fontSize: '1.4rem',
                   letterSpacing: '0.1em',
-                  marginBottom: '0.5rem',
+                  marginBottom: '2rem',
                 }}
               >
-                22 ИЮНЯ 2026
-              </p>
-              <p
-                className="font-georgian"
-                style={{ color: '#8B4A2E', fontSize: '0.9rem', marginBottom: '2rem' }}
-              >
-                22 ივნისი, 2026
+                22–23 ИЮНЯ 2026
               </p>
               <p style={{ color: '#5C1F1F', fontStyle: 'italic', marginBottom: '2rem' }}>
                 До нашего праздника осталось...
@@ -191,7 +187,7 @@ export default function Letter({ invitation, invitationId }) {
               <p
                 style={{
                   color: '#5C1F1F',
-                  textAlign: 'center',
+                  textAlign: 'left',
                   lineHeight: 1.8,
                   maxWidth: '500px',
                   margin: '0 auto 2rem',
@@ -201,137 +197,68 @@ export default function Letter({ invitation, invitationId }) {
                 Среди виноградников и гор Кахетии — винодельня In Gremi, где горы встречают небо,
                 а туман над Алазанской долиной хранит тысячелетние тайны.
               </p>
-              <p
-                className="text-center"
-                style={{
-                  color: '#8B4A2E',
-                  fontSize: '0.85rem',
-                  fontStyle: 'italic',
-                  marginBottom: '2rem',
-                }}
-              >
-                41.8°N, 45.8°E
-              </p>
-
-              {/* Polaroid map */}
+              {/* Polaroid photo */}
               <div
                 className="mx-auto"
                 style={{
-                  maxWidth: '300px',
-                  transform: 'rotate(-2deg)',
+                  maxWidth: '340px',
+                  transform: 'rotate(-1.5deg)',
                   background: 'white',
-                  padding: '12px 12px 40px',
-                  boxShadow: '4px 4px 20px rgba(0,0,0,0.3)',
+                  padding: '10px 10px 44px',
+                  boxShadow: '4px 6px 24px rgba(0,0,0,0.35)',
                   marginBottom: '2rem',
                 }}
               >
-                <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" className="w-full">
-                  <rect width="280" height="200" fill="#E8DCC8"/>
-                  {/* Stylized Kakheti map */}
-                  <path
-                    d="M40,100 Q80,60 140,80 Q200,60 240,90 Q220,140 180,160 Q140,180 100,150 Q60,140 40,100 Z"
-                    fill="#C9A876"
-                    stroke="#8B4A2E"
-                    strokeWidth="1.5"
-                  />
-                  {/* Mountains */}
-                  <polygon points="60,95 80,65 100,95" fill="#7A8579" opacity="0.7"/>
-                  <polygon points="90,90 115,58 140,90" fill="#7A8579" opacity="0.6"/>
-                  <polygon points="160,85 180,62 200,85" fill="#7A8579" opacity="0.5"/>
-                  {/* Vineyard lines */}
-                  <line x1="100" y1="130" x2="180" y2="130" stroke="#4A5D3F" strokeWidth="1" opacity="0.7"/>
-                  <line x1="100" y1="140" x2="180" y2="140" stroke="#4A5D3F" strokeWidth="1" opacity="0.7"/>
-                  <line x1="100" y1="150" x2="170" y2="150" stroke="#4A5D3F" strokeWidth="1" opacity="0.7"/>
-                  {/* Location pin */}
-                  <circle cx="148" cy="108" r="8" fill="#5C1F1F"/>
-                  <circle cx="148" cy="108" r="4" fill="#D4B896"/>
-                  <text x="148" y="96" textAnchor="middle" fill="#5C1F1F" fontSize="9" fontFamily="Lora, serif">
-                    In Gremi
-                  </text>
-                  {/* Alazani river */}
-                  <path
-                    d="M30,155 Q80,145 140,158 Q200,165 250,155"
-                    stroke="#7A8579"
-                    strokeWidth="2"
-                    fill="none"
-                    opacity="0.6"
-                  />
-                  <text
-                    x="140"
-                    y="170"
-                    textAnchor="middle"
-                    fill="#7A8579"
-                    fontSize="7"
-                    fontFamily="Lora, serif"
-                    fontStyle="italic"
-                  >
-                    Алазанская долина
-                  </text>
-                </svg>
+                <img
+                  src="/in-gremi.jpg"
+                  alt="Вид из In Gremi — замок Греми и горы Кахетии"
+                  style={{
+                    width: '100%',
+                    display: 'block',
+                    objectFit: 'cover',
+                    aspectRatio: '4/3',
+                  }}
+                />
                 <p
                   className="text-center mt-2"
                   style={{
-                    fontFamily: 'Italianno, cursive',
+                    fontFamily: "'Marck Script', cursive",
                     color: '#5C1F1F',
-                    fontSize: '1rem',
+                    fontSize: '1.1rem',
                   }}
                 >
                   In Gremi, Кахетия
                 </p>
               </div>
 
-              {/* ICS download button */}
-              <div className="text-center">
-                <button
-                  onClick={generateICS}
-                  className="cursor-pointer"
-                  aria-label="Скачать .ics файл для календаря"
+              {/* Google Maps link */}
+              <div className="text-center" style={{ marginBottom: '2rem' }}>
+                <a
+                  href="https://share.google/Ac6tQjGuLkEa0ufQK"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
                     display: 'inline-flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
                     gap: '6px',
+                    color: '#8B4A2E',
+                    fontSize: '0.9rem',
+                    fontStyle: 'italic',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid rgba(139,74,46,0.4)',
+                    paddingBottom: '1px',
                   }}
                 >
-                  <svg
-                    viewBox="0 0 80 80"
-                    className="w-16 h-16"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <circle cx="40" cy="40" r="36" fill="#5C1F1F"/>
-                    <circle cx="40" cy="40" r="30" fill="none" stroke="#A8864A" strokeWidth="1.5" strokeDasharray="3 2"/>
-                    <text
-                      x="40"
-                      y="36"
-                      textAnchor="middle"
-                      fill="#D4B896"
-                      fontFamily="Cormorant SC, serif"
-                      fontSize="9"
-                      fontStyle="italic"
-                    >
-                      Сохранить
-                    </text>
-                    <text
-                      x="40"
-                      y="48"
-                      textAnchor="middle"
-                      fill="#D4B896"
-                      fontFamily="Cormorant SC, serif"
-                      fontSize="9"
-                      fontStyle="italic"
-                    >
-                      дату
-                    </text>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B4A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
                   </svg>
-                  <span style={{ color: '#8B4A2E', fontSize: '0.8rem', fontStyle: 'italic' }}>
-                    скачать .ics
-                  </span>
-                </button>
+                  Открыть на картах
+                </a>
               </div>
+
+              {/* Add to Calendar */}
+              <AddToCalendar />
             </section>
 
             <Divider />
@@ -346,9 +273,38 @@ export default function Letter({ invitation, invitationId }) {
                   marginBottom: '2rem',
                 }}
               >
-                Программа дня
+                Программа
               </h2>
-              <Timeline events={PROGRAM} />
+
+              <h3
+                style={{
+                  color: '#8B4A2E',
+                  fontFamily: 'Cormorant Garamond, Georgia, serif',
+                  fontSize: '1.3rem',
+                  fontWeight: 600,
+                  marginBottom: '1.25rem',
+                  textAlign: 'center',
+                }}
+              >
+                День первый — 22 июня
+              </h3>
+              <Timeline events={PROGRAM_DAY1} />
+
+              <Divider />
+
+              <h3
+                style={{
+                  color: '#8B4A2E',
+                  fontFamily: 'Cormorant Garamond, Georgia, serif',
+                  fontSize: '1.3rem',
+                  fontWeight: 600,
+                  marginBottom: '1.25rem',
+                  textAlign: 'center',
+                }}
+              >
+                День второй — 23 июня
+              </h3>
+              <Timeline events={PROGRAM_DAY2} />
             </section>
 
             <Divider />
@@ -370,7 +326,7 @@ export default function Letter({ invitation, invitationId }) {
                   <h3 style={{ color: '#8B4A2E', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                     Вина Кахетии
                   </h3>
-                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem' }}>
+                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem', textAlign: 'left' }}>
                     Саперави, Ркацители, Мцване — кахетинские вина с тысячелетней историей, выдержанные в квеври.
                     Тёмный, бархатный Саперави — вино цвета ночи.
                   </p>
@@ -379,7 +335,7 @@ export default function Letter({ invitation, invitationId }) {
                   <h3 style={{ color: '#8B4A2E', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                     Грузинская кухня
                   </h3>
-                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem' }}>
+                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem', textAlign: 'left' }}>
                     Хинкали с бараниной, хачапури по-аджарски, мцвади на углях, сулугуни, чурчхела с грецким орехом.
                   </p>
                 </div>
@@ -387,7 +343,7 @@ export default function Letter({ invitation, invitationId }) {
                   <h3 style={{ color: '#8B4A2E', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                     Что посмотреть
                   </h3>
-                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem' }}>
+                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem', textAlign: 'left' }}>
                     Монастырь Алаверди (XI в.), Сигнаги — город любви, Телави, Крепость Греми рядом с виноградниками.
                   </p>
                 </div>
@@ -395,7 +351,7 @@ export default function Letter({ invitation, invitationId }) {
                   <h3 style={{ color: '#8B4A2E', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                     Природа
                   </h3>
-                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem' }}>
+                  <p style={{ color: '#5C1F1F', lineHeight: 1.8, fontSize: '0.95rem', textAlign: 'left' }}>
                     Алазанская долина на рассвете, туман над виноградниками, Большой Кавказский хребет на горизонте.
                   </p>
                 </div>
@@ -447,13 +403,112 @@ export default function Letter({ invitation, invitationId }) {
                 Ира & Артём
               </div>
               <div style={{ color: '#8B4A2E', fontStyle: 'italic', fontSize: '0.9rem' }}>
-                22 июня 2026 · In Gremi · Кахетия
+                22–23 июня 2026 · In Gremi · Кахетия
               </div>
             </div>
 
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function AddToCalendar() {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <div className="text-center" style={{ position: 'relative', display: 'inline-block', left: '50%', transform: 'translateX(-50%)' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          background: '#5C1F1F',
+          color: '#D4B896',
+          border: '1px solid #A8864A',
+          borderRadius: '4px',
+          padding: '10px 24px',
+          fontSize: '0.9rem',
+          fontFamily: 'Lora, Georgia, serif',
+          fontStyle: 'italic',
+          cursor: 'pointer',
+          letterSpacing: '0.05em',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}
+        aria-label="Добавить в календарь"
+      >
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#D4B896" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Добавить в календарь
+      </button>
+
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+          />
+          {/* Dropdown */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 6px)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: '#2D2010',
+              border: '1px solid #A8864A',
+              borderRadius: '4px',
+              minWidth: '200px',
+              zIndex: 50,
+              overflow: 'hidden',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+            }}
+          >
+            {[
+              {
+                label: 'Google Календарь',
+                onClick: () => { window.open(generateGoogleCalendarUrl(), '_blank'); setOpen(false) },
+              },
+              {
+                label: 'Apple / iCal (.ics)',
+                onClick: () => { generateICS(); setOpen(false) },
+              },
+              {
+                label: 'Outlook (.ics)',
+                onClick: () => { generateICS(); setOpen(false) },
+              },
+            ].map(item => (
+              <button
+                key={item.label}
+                onClick={item.onClick}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: '1px solid rgba(168,134,74,0.2)',
+                  padding: '10px 16px',
+                  color: '#D4B896',
+                  fontSize: '0.85rem',
+                  fontFamily: 'Lora, Georgia, serif',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(168,134,74,0.15)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

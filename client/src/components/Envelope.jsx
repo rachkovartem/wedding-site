@@ -183,9 +183,9 @@ function SealCanvas({ sealBreak }) {
 }
 
 /**
- * @param {{ scrollPhase: number, guestName?: string }} props
+ * @param {{ scrollPhase: number, guestName?: string, onSealClick?: () => void }} props
  */
-export default function Envelope({ scrollPhase, guestName }) {
+export default function Envelope({ scrollPhase, guestName, onSealClick }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
   const [startScale, setStartScale] = useState(0.28)
@@ -278,9 +278,11 @@ export default function Envelope({ scrollPhase, guestName }) {
         <div
           ref={envelopeBodyRef}
           className="relative"
+          onClick={isIdle && onSealClick ? onSealClick : undefined}
           style={{
             animation: isIdle ? 'breathe 3s ease-in-out infinite' : 'none',
             transformOrigin: 'center',
+            cursor: isIdle && onSealClick ? 'pointer' : 'default',
           }}
         >
           {/* Main envelope body */}
@@ -359,7 +361,7 @@ export default function Envelope({ scrollPhase, guestName }) {
           <div style={{ opacity: contentOpacity, textAlign: 'center', padding: '2rem' }}>
             <div
               style={{
-                fontFamily: 'Italianno, cursive',
+                fontFamily: "'Marck Script', cursive",
                 color: '#5C1F1F',
                 fontSize: 'clamp(3rem, 8vw, 6rem)',
                 lineHeight: 1.1,
@@ -370,35 +372,13 @@ export default function Envelope({ scrollPhase, guestName }) {
             </div>
             <div
               style={{
-                fontFamily: 'Noto Serif Georgian, Georgia, serif',
-                color: '#8B4A2E',
-                fontSize: '1rem',
-                letterSpacing: '0.15em',
-                marginBottom: '1rem',
-              }}
-            >
-              ირა & არტიომი
-            </div>
-            <div
-              style={{
                 fontFamily: 'Cormorant SC, Georgia, serif',
                 color: '#8B4A2E',
                 fontSize: '1.1rem',
                 letterSpacing: '0.15em',
               }}
             >
-              22 ИЮНЯ 2026
-            </div>
-            <div
-              style={{
-                color: '#5C1F1F',
-                fontStyle: 'italic',
-                marginTop: '1rem',
-                fontSize: '1rem',
-                maxWidth: '400px',
-              }}
-            >
-              среди виноградников и гор Кахетии
+              22–23 ИЮНЯ 2026
             </div>
           </div>
         </div>
@@ -409,13 +389,13 @@ export default function Envelope({ scrollPhase, guestName }) {
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center"
           style={{
-            color: '#7A8579',
-            fontSize: '0.8rem',
+            color: '#D4B896',
+            fontSize: '0.95rem',
             fontFamily: 'Lora, serif',
             letterSpacing: '0.1em',
           }}
         >
-          <div style={{ animation: 'fogDrift 2s ease-in-out infinite' }}>↓ прокрутите ↓</div>
+          <div style={{ animation: 'scrollHint 1.8s ease-in-out infinite' }}>↓ прокрутите ↓</div>
         </div>
       )}
     </div>

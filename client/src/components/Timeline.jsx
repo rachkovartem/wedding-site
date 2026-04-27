@@ -14,7 +14,7 @@ export default function Timeline({ events }) {
       <div
         style={{
           position: 'absolute',
-          left: '60px',
+          left: '95px',
           top: '12px',
           bottom: '12px',
           width: '1px',
