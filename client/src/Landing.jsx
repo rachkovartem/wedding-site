@@ -14,58 +14,48 @@ export default function Landing({ invitationId, onNavigate }) {
   const rafRef = useRef(null)
   const viewedRef = useRef(false)
 
-  const handleFlipClick = () => {
+  const scrollTo = (targetFraction, duration) => {
     const hero = heroRef.current
-    if (!hero) return
+    if (!hero) return Promise.resolve()
     const heroTop = hero.offsetTop
     const heroHeight = hero.offsetHeight
     const viewportH = window.innerHeight
     const scrollable = heroHeight - viewportH
-    const target = heroTop + scrollable * 0.18  // scroll to ~18% → flipPhase = 1
-
+    const target = heroTop + scrollable * targetFraction
     const start = window.scrollY
     const distance = target - start
-    if (Math.abs(distance) < 10) return
+    if (Math.abs(distance) < 10) return Promise.resolve()
 
-    const duration = 900
-    const startTime = performance.now()
-
-    function step(now) {
-      const elapsed = now - startTime
-      const t = Math.min(elapsed / duration, 1)
-      const ease = 1 - Math.pow(1 - t, 3)
-      window.scrollTo(0, start + distance * ease)
-      if (t < 1) requestAnimationFrame(step)
-    }
-    requestAnimationFrame(step)
+    return new Promise((resolve) => {
+      const startTime = performance.now()
+      function step(now) {
+        const elapsed = now - startTime
+        const t = Math.min(elapsed / duration, 1)
+        const ease = 1 - Math.pow(1 - t, 3)
+        window.scrollTo(0, start + distance * ease)
+        if (t < 1) requestAnimationFrame(step)
+        else resolve()
+      }
+      requestAnimationFrame(step)
+    })
   }
 
   const handleSealClick = () => {
-    const hero = heroRef.current
-    if (!hero) return
-    const heroTop = hero.offsetTop
-    const heroHeight = hero.offsetHeight
-    const viewportH = window.innerHeight
-    const scrollable = heroHeight - viewportH
-    const target = heroTop + scrollable * 0.97
+    const openLetter = () =>
+      // sealBreak phase (20%→38%) in 900ms, then rest to 97% in 2000ms
+      scrollTo(0.38, 900).then(() => scrollTo(0.97, 2000))
 
-    const start = window.scrollY
-    const distance = target - start
-    if (Math.abs(distance) < 10) return
-
-    const duration = 2600
-    const startTime = performance.now()
-
-    function step(now) {
-      const elapsed = now - startTime
-      const t = Math.min(elapsed / duration, 1)
-      // easeOutCubic — starts at full speed, decelerates smoothly
-      const ease = 1 - Math.pow(1 - t, 3)
-      window.scrollTo(0, start + distance * ease)
-      if (t < 1) requestAnimationFrame(step)
+    if (scrollPhase < 15) {
+      // Flip (800ms) → pause (300ms) → seal shards (300ms) → open (2000ms)
+      scrollTo(0.18, 800)
+        .then(() => new Promise(r => setTimeout(r, 300)))
+        .then(openLetter)
+    } else {
+      openLetter()
     }
-    requestAnimationFrame(step)
   }
+
+  const handleFlipClick = handleSealClick
 
   useEffect(() => {
     if (!invitationId) return

@@ -86,16 +86,6 @@ export default function Letter({ invitation }) {
                   {salutation} {guestName},
                 </p>
               )}
-              <div
-                className="font-script mb-2"
-                style={{
-                  color: '#5C1F1F',
-                  fontSize: 'clamp(1.8rem, 5vw, 3rem)',
-                  lineHeight: 1.1,
-                }}
-              >
-                {BRIDE} и {GROOM}
-              </div>
               <p
                 className="font-sc"
                 style={{
@@ -105,7 +95,7 @@ export default function Letter({ invitation }) {
                   marginBottom: '1.5rem',
                 }}
               >
-                НАЧИНАЮТ ОДНУ ИСТОРИЮ НА ДВОИХ. И ОЧЕНЬ ХОТЯТ, ЧТОБЫ ВЫ БЫЛИ РЯДОМ
+                {BRIDE.toUpperCase()} И {GROOM.toUpperCase()} НАЧИНАЮТ ОДНУ ИСТОРИЮ НА ДВОИХ. И ОЧЕНЬ ХОТЯТ, ЧТОБЫ ВЫ БЫЛИ РЯДОМ
               </p>
             </section>
 
