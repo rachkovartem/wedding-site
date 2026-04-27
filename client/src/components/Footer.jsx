@@ -84,7 +84,7 @@ export default function Footer({ onAdminTrigger }) {
             fontStyle: 'italic',
           }}
         >
-          Сделано с любовью среди гор Кахетии
+          Сделано с любовью <s>в Claude Code</s> среди гор Кахетии
         </p>
       </div>
 
