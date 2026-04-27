@@ -389,10 +389,11 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center"
           style={{
-            color: '#D4B896',
+            color: '#fff',
             fontSize: '0.95rem',
             fontFamily: 'Lora, serif',
             letterSpacing: '0.1em',
+            textShadow: '0 1px 4px rgba(0,0,0,0.6)',
           }}
         >
           <div style={{ animation: 'scrollHint 1.8s ease-in-out infinite' }}>↓ прокрутите ↓</div>
