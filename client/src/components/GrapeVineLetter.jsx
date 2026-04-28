@@ -1,11 +1,18 @@
 import React from 'react'
 
-export default function GrapeVineLetter() {
+/**
+ * @param {{ yOffset?: number, anchor?: 'top' | 'bottom' }} props
+ *   yOffset — how many px into the tile pattern to start (default 0 = tile top).
+ *             Pass (cardVineLen % tileH) so the vine continues seamlessly from the card.
+ *   anchor  — 'top' (default) starts the pattern from the top; 'bottom' anchors it to the bottom edge.
+ */
+export default function GrapeVineLetter({ yOffset = 0, anchor = 'top' }) {
+  const backgroundPosition = anchor === 'bottom'
+    ? 'center bottom'
+    : yOffset ? `center -${yOffset}px` : 'center top'
+
   return (
-    <div
-      style={{ height: '100%' }}
-      aria-hidden="true"
-    >
+    <div style={{ height: '100%' }} aria-hidden="true">
       <div
         style={{
           width: '100%',
@@ -13,10 +20,7 @@ export default function GrapeVineLetter() {
           backgroundImage: 'url(/vine-vertical.png)',
           backgroundRepeat: 'repeat-y',
           backgroundSize: '100% auto',
-          backgroundPosition: 'center top',
-          // Размытие только сверху — снизу без отступа
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 12%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%)',
+          backgroundPosition,
         }}
       />
     </div>

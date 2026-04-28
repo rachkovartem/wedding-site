@@ -1,11 +1,6 @@
 import React from 'react'
-import Countdown from './Countdown.jsx'
 import Timeline from './Timeline.jsx'
 import GrapeVineLetter from './GrapeVineLetter.jsx'
-
-const WEDDING_DATE = new Date('2026-06-22T14:00:00')
-const BRIDE = 'Ира'
-const GROOM = 'Артём'
 
 /** @type {Array<{ time: string, title: string, desc: string }>} */
 const PROGRAM_DAY1 = [
@@ -35,8 +30,25 @@ const PROGRAM_DAY2 = [
  * @param {{ invitation: Invitation }} props
  */
 export default function Letter({ invitation }) {
-  const guestName = invitation?.guest_name
-  const salutation = invitation?.salutation || 'Дорогой'
+  const vineColRef = React.useRef(null)
+  const [vineOffset, setVineOffset] = React.useState(0)
+  const [isLg, setIsLg] = React.useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024)
+
+  React.useEffect(() => {
+    const handleResize = () => setIsLg(window.innerWidth >= 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  React.useEffect(() => {
+    const el = vineColRef.current
+    if (!el || el.offsetWidth === 0) return
+    const colW = el.offsetWidth
+    const tileH = colW * 1920 / 1165
+    // Card vine length = full viewport height (Envelope card occupies 100vh, no pt-8 offset)
+    const cardVineLen = window.innerHeight
+    setVineOffset(cardVineLen % tileH)
+  }, [])
 
   return (
     <div className="paper-texture" style={{ minHeight: '100vh', position: 'relative' }}>
@@ -50,86 +62,26 @@ export default function Letter({ invitation }) {
           inset: 0,
           pointerEvents: 'none',
           zIndex: 0,
+          opacity: 0.12,
           backgroundImage: 'url(/vine-vertical.png)',
           backgroundRepeat: 'repeat-y',
           backgroundSize: '40% auto',
           backgroundPosition: 'left top',
-          opacity: 0.12,
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 12%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%)',
         }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 pt-8 pb-0" style={{ position: 'relative', zIndex: 1 }}>
-        {/* Two-column layout at lg+ */}
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="max-w-6xl mx-auto px-4 pt-0 pb-0" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Left vine column — absolute, out of flex flow, same width as Envelope card */}
+        <div
+          className="hidden lg:block"
+          ref={vineColRef}
+          style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '28%', minWidth: '200px', overflow: 'hidden' }}
+        >
+          <GrapeVineLetter yOffset={vineOffset} />
+        </div>
 
-          {/* Left column — vine decoration (lg+ only) */}
-          <div className="hidden lg:block" style={{ width: '28%', minWidth: '200px', alignSelf: 'stretch' }}>
-            <GrapeVineLetter />
-          </div>
-
-          {/* Right column — content */}
-          <div className="flex-1">
-
-            {/* Section 1: Names */}
-            <section className="text-center mb-16">
-              {guestName && (
-                <p
-                  className="font-script mb-2"
-                  style={{
-                    color: '#5C1F1F',
-                    fontSize: 'clamp(1.8rem, 5vw, 3rem)',
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {salutation} {guestName},
-                </p>
-              )}
-              <p
-                className="font-sc"
-                style={{
-                  color: '#5C1F1F',
-                  fontSize: '0.95rem',
-                  letterSpacing: '0.15em',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                {BRIDE.toUpperCase()} И {GROOM.toUpperCase()} НАЧИНАЮТ ОДНУ ИСТОРИЮ НА ДВОИХ. И ОЧЕНЬ ХОТЯТ, ЧТОБЫ ВЫ БЫЛИ РЯДОМ
-              </p>
-            </section>
-
-            <Divider />
-
-            {/* Section 2: Date + Countdown */}
-            <section className="text-center mb-16">
-              <h2
-                style={{
-                  color: '#5C1F1F',
-                  fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                Когда
-              </h2>
-              <p
-                className="font-sc"
-                style={{
-                  color: '#8B4A2E',
-                  fontSize: '1.4rem',
-                  letterSpacing: '0.1em',
-                  marginBottom: '2rem',
-                }}
-              >
-                22–23 ИЮНЯ 2026
-              </p>
-              <p style={{ color: '#5C1F1F', fontStyle: 'italic', marginBottom: '2rem' }}>
-                До нашего праздника осталось...
-              </p>
-              <Countdown targetDate={WEDDING_DATE} />
-            </section>
-
-            <Divider />
+        {/* Right column — content; left padding reserves space for vine on lg+ */}
+        <div style={{ paddingLeft: isLg ? 'max(28%, 200px)' : 0 }}>
 
             {/* Section 3: Venue + Map + ICS */}
             <section className="mb-16">
@@ -345,7 +297,6 @@ export default function Letter({ invitation }) {
               </div>
             </div>
 
-          </div>
         </div>
       </div>
     </div>

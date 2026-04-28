@@ -10,7 +10,6 @@ import Footer from './components/Footer.jsx'
 export default function Landing({ invitationId, onNavigate }) {
   const [invitation, setInvitation] = useState(null)
   const [scrollPhase, setScrollPhase] = useState(0)
-  const [cardExitProgress, setCardExitProgress] = useState(0)
   const heroRef = useRef(null)
   const stickyRef = useRef(null)
   const rafRef = useRef(null)
@@ -45,7 +44,7 @@ export default function Landing({ invitationId, onNavigate }) {
   const handleSealClick = () => {
     const openLetter = () =>
       // sealBreak phase (20%→38%) in 900ms, then rest to 97% in 1500ms, then scroll into letter section
-      scrollTo(0.38, 900).then(() => scrollTo(0.97, 1500)).then(() => scrollTo(2.0, 600))
+      scrollTo(0.38, 900).then(() => scrollTo(0.97, 1500))
 
     if (scrollPhase < 15) {
       // Flip (800ms) → pause (300ms) → seal shards (300ms) → open (2000ms)
@@ -85,12 +84,6 @@ export default function Landing({ invitationId, onNavigate }) {
         const scrolled = Math.max(0, window.scrollY - heroTop)
         const p = Math.min(100, scrollable > 0 ? (scrolled / scrollable) * 100 : 0)
         setScrollPhase(p)
-
-        // cardExitProgress: 0 while in hero, fades 0→1 as user scrolls into letter section
-        const heroMax = heroTop + scrollable          // scrollY where phase = 100%
-        const letterScrolled = Math.max(0, window.scrollY - heroMax)
-        const cardExit = viewportH > 0 ? Math.min(1, letterScrolled / viewportH) : 0
-        setCardExitProgress(cardExit)
       })
     }
 
@@ -122,7 +115,6 @@ export default function Landing({ invitationId, onNavigate }) {
           />
           <Envelope
             scrollPhase={scrollPhase}
-            cardExitProgress={cardExitProgress}
             guestName={invitation?.guest_name}
             salutation={invitation?.salutation}
             onSealClick={handleSealClick}

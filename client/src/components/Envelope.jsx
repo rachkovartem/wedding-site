@@ -1,4 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react'
+import GrapeVineLetter from './GrapeVineLetter.jsx'
+import Countdown from './Countdown.jsx'
 
 /**
  * Linear interpolation helper
@@ -19,6 +21,8 @@ function lerp(start, end, t) {
 function progress(phase, from, to) {
   return Math.min(1, Math.max(0, (phase - from) / (to - from)))
 }
+
+const WEDDING_DATE = new Date('2026-06-22T14:00:00')
 
 /**
  * Seal image that shatters into irregular glass-like shards when sealBreak → 1.
@@ -289,13 +293,15 @@ function FrontFace({ guestName, salutation, onFlip }) {
 /**
  * @param {{ scrollPhase: number, guestName?: string, salutation?: string, onSealClick?: () => void, onFlipClick?: () => void }} props
  */
-export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick, cardExitProgress = 0 }) {
+export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
   const [startScale, setStartScale] = useState(0.28)
+  const [isLg, setIsLg] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024)
 
   useEffect(() => {
     const compute = () => {
+      setIsLg(window.innerWidth >= 1024)
       if (!envelopeBodyRef.current) return
       const envelopeEl = envelopeBodyRef.current
       const envelopeW = envelopeEl.offsetWidth * 0.9
@@ -340,8 +346,9 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
   const letterExpand   = progress(p, 72, 97)
   const cardScale      = lerp(startScale, 1, letterExpand)
   const cardRadius     = lerp(4, 0, letterExpand)
-  const cardOpacity    = letterRise > 0 && cardExitProgress < 1 ? 1 : 0
+  const cardOpacity    = letterRise > 0 ? 1 : 0
   const cardTranslateY = lerp(letterTranslateY * 0.3, 0, letterExpand)
+  const contentOpacity = letterExpand > 0.4 ? lerp(0, 1, (letterExpand - 0.4) / 0.6) : 0
 
   return (
     <div data-envelope-container className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 10 }}>
@@ -474,20 +481,125 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
         <div
           className="paper-texture"
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            position: 'absolute',
+            inset: '0',
             borderRadius: `${cardRadius}px`,
             transform: `scale(${cardScale}) translateY(${cardTranslateY}px)`,
             transformOrigin: 'center center',
             opacity: cardOpacity,
             zIndex: 20,
             overflow: 'hidden',
-            pointerEvents: 'none',
           }}
-        />
+        >
+          {/* Mobile vine background — same as Letter */}
+          <div
+            className="lg:hidden"
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 0,
+              backgroundImage: 'url(/vine-vertical.png)',
+              backgroundRepeat: 'repeat-y',
+              backgroundSize: '40% auto',
+              backgroundPosition: 'left bottom',
+              opacity: 0.12,
+            }}
+          />
+
+          {/* Content — same container/layout as Letter */}
+          <div
+            className="max-w-6xl mx-auto px-4 pb-0 w-full"
+            style={{ position: 'relative', zIndex: 1, height: '100%', opacity: contentOpacity }}
+          >
+            {/* Left vine column — absolute, anchored to the bottom of the card */}
+            <div
+              className="hidden lg:block"
+              style={{ position: 'absolute', left: 0, bottom: 0, width: '28%', minWidth: '200px', height: '100%', overflow: 'hidden' }}
+            >
+              <GrapeVineLetter anchor="bottom" />
+            </div>
+
+            {/* Right content column — vertically centred, left padding mirrors Letter */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', justifyContent: 'center', height: '100%', paddingTop: '2rem', paddingBottom: '2rem', paddingLeft: isLg ? 'max(28%, 200px)' : 0 }}>
+                {guestName && (
+                  <p
+                    className="font-script"
+                    style={{
+                      color: '#5C1F1F',
+                      fontSize: 'clamp(1.8rem, 5vw, 3rem)',
+                      lineHeight: 1.1,
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    {salutation} {guestName},
+                  </p>
+                )}
+
+                <p
+                  className="font-sc"
+                  style={{
+                    color: '#5C1F1F',
+                    fontSize: '0.95rem',
+                    letterSpacing: '0.15em',
+                    marginBottom: '2rem',
+                  }}
+                >
+                  ИРА И АРТЁМ НАЧИНАЮТ ОДНУ ИСТОРИЮ НА ДВОИХ.<br />
+                  И ОЧЕНЬ ХОТЯТ, ЧТОБЫ ВЫ БЫЛИ РЯДОМ
+                </p>
+
+                {/* Divider */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', width: '100%', maxWidth: '400px' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, #A8864A, transparent)' }} />
+                  <svg viewBox="0 0 40 20" width="40" height="20" aria-hidden="true">
+                    <path d="M20,10 Q15,4 10,10 Q15,16 20,10 Z" fill="#A8864A" opacity="0.7" />
+                    <path d="M20,10 Q25,4 30,10 Q25,16 20,10 Z" fill="#A8864A" opacity="0.7" />
+                    <circle cx="20" cy="10" r="2" fill="#A8864A" />
+                  </svg>
+                  <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, #A8864A, transparent)' }} />
+                </div>
+
+                {/* Когда section */}
+                <h2 style={{ color: '#5C1F1F', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', marginBottom: '0.5rem' }}>
+                  Когда
+                </h2>
+                <p className="font-sc" style={{ color: '#8B4A2E', fontSize: '1.4rem', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>
+                  22–23 ИЮНЯ 2026
+                </p>
+                <p style={{ color: '#5C1F1F', fontStyle: 'italic', marginBottom: '1.5rem' }}>
+                  До нашего праздника осталось...
+                </p>
+                <Countdown targetDate={WEDDING_DATE} />
+
+                {/* Divider */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '2rem 0 1.5rem', width: '100%', maxWidth: '400px' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, #A8864A, transparent)' }} />
+                  <svg viewBox="0 0 40 20" width="40" height="20" aria-hidden="true">
+                    <path d="M20,10 Q15,4 10,10 Q15,16 20,10 Z" fill="#A8864A" opacity="0.7" />
+                    <path d="M20,10 Q25,4 30,10 Q25,16 20,10 Z" fill="#A8864A" opacity="0.7" />
+                    <circle cx="20" cy="10" r="2" fill="#A8864A" />
+                  </svg>
+                  <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, #A8864A, transparent)' }} />
+                </div>
+
+                {/* Scroll hint */}
+                <p
+                  style={{
+                    color: '#8B4A2E',
+                    fontSize: '0.8rem',
+                    fontStyle: 'italic',
+                    letterSpacing: '0.1em',
+                    animation: 'scrollHint 1.8s ease-in-out infinite',
+                  }}
+                >
+                  ↓ листайте
+                </p>
+              </div>
+
+          </div>
+        </div>
       )}
 
     </div>
