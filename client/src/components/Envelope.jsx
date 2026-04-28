@@ -289,7 +289,7 @@ function FrontFace({ guestName, salutation, onFlip }) {
 /**
  * @param {{ scrollPhase: number, guestName?: string, salutation?: string, onSealClick?: () => void, onFlipClick?: () => void }} props
  */
-export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick }) {
+export default function Envelope({ scrollPhase, guestName, salutation, onSealClick, onFlipClick, cardExitProgress = 0 }) {
   const p = scrollPhase
   const envelopeBodyRef = useRef(null)
   const [startScale, setStartScale] = useState(0.28)
@@ -340,7 +340,7 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
   const letterExpand   = progress(p, 72, 97)
   const cardScale      = lerp(startScale, 1, letterExpand)
   const cardRadius     = lerp(4, 0, letterExpand)
-  const cardOpacity    = letterRise > 0 ? 1 : 0
+  const cardOpacity    = letterRise > 0 && cardExitProgress < 1 ? 1 : 0
   const cardTranslateY = lerp(letterTranslateY * 0.3, 0, letterExpand)
 
   return (
@@ -474,8 +474,11 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
         <div
           className="paper-texture"
           style={{
-            position: 'absolute',
-            inset: '0',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             borderRadius: `${cardRadius}px`,
             transform: `scale(${cardScale}) translateY(${cardTranslateY}px)`,
             transformOrigin: 'center center',
