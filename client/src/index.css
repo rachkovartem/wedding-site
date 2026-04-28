@@ -33,19 +33,20 @@ h1, h2, h3, h4, h5, h6 {
 .font-sc { font-family: 'Cormorant SC', Georgia, serif; }
 
 /* dvh helper */
-/* svh = small viewport height — stable, ignores browser chrome show/hide.
-   Falls back to --vh (JS) → dvh → vh for older browsers. */
+/* --vh is set once on load via JS (window.innerHeight * 0.01) and updated only on
+   true resize events — never changes during scroll. This prevents jitter in
+   Telegram WebView where svh/dvh fluctuate as the browser chrome hides/shows. */
 .h-screen-dvh {
-  height: calc(var(--vh, 1dvh) * 100);
-  height: 100svh;
+  height: 100vh;
+  height: calc(var(--vh) * 100);
 }
 .h-300dvh {
-  height: calc(var(--vh, 1dvh) * 300);
-  height: calc(100svh * 3);
+  height: 300vh;
+  height: calc(var(--vh) * 300);
 }
 .h-200dvh {
-  height: calc(var(--vh, 1dvh) * 200);
-  height: calc(100svh * 2);
+  height: 200vh;
+  height: calc(var(--vh) * 200);
 }
 
 /* Fog drift animation */

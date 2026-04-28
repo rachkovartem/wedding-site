@@ -14,6 +14,9 @@ export default function Landing({ invitationId, onNavigate }) {
   const stickyRef = useRef(null)
   const rafRef = useRef(null)
   const viewedRef = useRef(false)
+  // Cache viewport height — updated only on real resize, not on scroll-triggered
+  // layout shifts (which happen in Telegram WebView when browser chrome hides/shows)
+  const viewportHRef = useRef(0)
 
   const scrollTo = (targetFraction, duration) => {
     const hero = heroRef.current
@@ -70,6 +73,17 @@ export default function Landing({ invitationId, onNavigate }) {
     }
   }, [invitationId])
 
+  // Populate viewportHRef once the sticky element is mounted, then keep it updated
+  // only on genuine resize events — never on scroll-triggered size changes.
+  useEffect(() => {
+    const update = () => {
+      viewportHRef.current = stickyRef.current?.offsetHeight ?? window.innerHeight
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
   useEffect(() => {
     const handleScroll = () => {
       if (rafRef.current) return
@@ -79,7 +93,7 @@ export default function Landing({ invitationId, onNavigate }) {
         if (!hero) return
         const heroTop = hero.offsetTop
         const heroHeight = hero.offsetHeight
-        const viewportH = stickyRef.current?.offsetHeight ?? window.innerHeight
+        const viewportH = viewportHRef.current || (stickyRef.current?.offsetHeight ?? window.innerHeight)
         const scrollable = heroHeight - viewportH
         const scrolled = Math.max(0, window.scrollY - heroTop)
         const p = Math.min(100, scrollable > 0 ? (scrolled / scrollable) * 100 : 0)

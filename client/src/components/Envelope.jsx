@@ -311,9 +311,22 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
       const vh = container?.offsetHeight ?? window.innerHeight
       setStartScale(Math.min(envelopeW / vw, envelopeH / vh))
     }
+    // Debounce resize handler — Telegram WebView fires resize on scroll when
+    // the browser chrome hides/shows, causing startScale to jitter. Running
+    // compute immediately on mount (no debounce) and only debouncing the
+    // listener ensures the initial value is correct while ignoring transient
+    // scroll-triggered resize events.
+    let debounceTimer = 0
+    const debouncedCompute = () => {
+      clearTimeout(debounceTimer)
+      debounceTimer = window.setTimeout(compute, 200)
+    }
     compute()
-    window.addEventListener('resize', compute)
-    return () => window.removeEventListener('resize', compute)
+    window.addEventListener('resize', debouncedCompute)
+    return () => {
+      window.removeEventListener('resize', debouncedCompute)
+      clearTimeout(debounceTimer)
+    }
   }, [])
 
   // Phase calculations
