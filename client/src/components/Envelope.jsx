@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import GrapeVineLetter from './GrapeVineLetter.jsx'
 import Countdown from './Countdown.jsx'
+import AddToCalendar from './AddToCalendar.jsx'
 
 /**
  * Linear interpolation helper
@@ -585,6 +586,11 @@ export default function Envelope({ scrollPhase, guestName, salutation, onSealCli
                   До нашего праздника осталось...
                 </p>
                 <Countdown targetDate={WEDDING_DATE} />
+
+                {/* Add to Calendar */}
+                <div style={{ marginTop: '1.5rem' }}>
+                  <AddToCalendar />
+                </div>
 
                 {/* Divider */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '2rem 0 1.5rem', width: '100%', maxWidth: '400px' }}>
