@@ -1,6 +1,7 @@
 import React from "react";
 import Timeline from "./Timeline.jsx";
 import GrapeVineLetter from "./GrapeVineLetter.jsx";
+import AddToCalendar from "./AddToCalendar.jsx";
 
 /** @type {Array<{ time: string, title: string, desc: string, link?: { href: string, text: string } }>} */
 const PROGRAM_DAY1 = [
@@ -230,6 +231,11 @@ export default function Letter({ invitation }) {
 
             {/* Weather widget */}
             <WeatherWidget />
+
+            {/* Add to Calendar */}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <AddToCalendar />
+            </div>
           </section>
 
           <Divider />
