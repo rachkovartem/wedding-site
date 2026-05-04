@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react'
  */
 export default function Countdown({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(targetDate))
+  const [isSmall, setIsSmall] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 360)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -12,6 +13,12 @@ export default function Countdown({ targetDate }) {
     }, 1000)
     return () => clearInterval(interval)
   }, [targetDate])
+
+  useEffect(() => {
+    const handleResize = () => setIsSmall(window.innerWidth <= 360)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   if (timeLeft.total <= 0) {
     return (
@@ -32,7 +39,10 @@ export default function Countdown({ targetDate }) {
   ]
 
   return (
-    <div className="flex justify-center gap-4 flex-wrap">
+    <div
+      className="flex justify-center"
+      style={{ gap: isSmall ? '8px' : '16px', width: isSmall ? '280px' : undefined }}
+    >
       {units.map(({ label, value, testId }) => (
         <div
           key={label}
@@ -40,8 +50,9 @@ export default function Countdown({ targetDate }) {
           style={{
             background: '#5C1F1F',
             borderRadius: '4px',
-            padding: '12px 16px',
-            minWidth: '70px',
+            padding: isSmall ? '8px 10px' : '12px 16px',
+            flex: isSmall ? '1 1 0' : undefined,
+            minWidth: isSmall ? 0 : '70px',
             border: '1px solid rgba(168,134,74,0.4)',
           }}
         >
@@ -49,7 +60,7 @@ export default function Countdown({ targetDate }) {
             data-testid={testId}
             style={{
               fontFamily: 'Cormorant Garamond, Georgia, serif',
-              fontSize: 'clamp(1.8rem, 5vw, 3rem)',
+              fontSize: isSmall ? '1.6rem' : 'clamp(1.8rem, 5vw, 3rem)',
               color: '#D4B896',
               lineHeight: 1,
               fontWeight: 600,
@@ -60,7 +71,7 @@ export default function Countdown({ targetDate }) {
           <span
             style={{
               fontFamily: 'Lora, Georgia, serif',
-              fontSize: '0.7rem',
+              fontSize: isSmall ? '0.6rem' : '0.7rem',
               color: '#A8864A',
               marginTop: '4px',
               letterSpacing: '0.08em',
