@@ -1,7 +1,7 @@
 import React from 'react'
 
 /**
- * @typedef {{ time: string, title: string, desc: string }} TimelineEvent
+ * @typedef {{ time: string, title: string, desc: string, link?: { href: string, text: string } }} TimelineEvent
  */
 
 /**
@@ -89,6 +89,26 @@ export default function Timeline({ events }) {
             >
               {event.desc}
             </p>
+            {event.link && (
+              <a
+                href={event.link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  marginTop: '4px',
+                  fontFamily: 'Lora, Georgia, serif',
+                  fontSize: '0.9rem',
+                  color: '#8B4A2E',
+                  fontStyle: 'italic',
+                  textDecoration: 'none',
+                  borderBottom: '1px solid rgba(139,74,46,0.5)',
+                  paddingBottom: '1px',
+                }}
+              >
+                {event.link.text}
+              </a>
+            )}
           </div>
         </div>
       ))}
