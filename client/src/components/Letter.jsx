@@ -247,11 +247,27 @@ export default function Letter({ invitation }) {
               style={{
                 color: "#5C1F1F",
                 fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-                marginBottom: "2rem",
+                marginBottom: "0.75rem",
               }}
             >
               Программа
             </h2>
+
+            <p
+              style={{
+                color: "#8B4A2E",
+                fontFamily: "Lora, Georgia, serif",
+                fontSize: "0.95rem",
+                fontStyle: "italic",
+                lineHeight: 1.7,
+                textAlign: "center",
+                maxWidth: "500px",
+                margin: "0 auto 2rem",
+              }}
+            >
+              Расписание пока ориентировочное — точные тайминги сообщим ближе к
+              дате. Но будьте готовы уже с утра 22 июня.
+            </p>
 
             <h3
               style={{
@@ -300,6 +316,76 @@ export default function Letter({ invitation }) {
             </h2>
 
             <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+              {/* Q0: Travel insurance — emphasized callout */}
+              <div
+                style={{
+                  marginBottom: "1.75rem",
+                  background: "rgba(168, 134, 74, 0.12)",
+                  border: "1px solid rgba(168, 134, 74, 0.4)",
+                  borderLeft: "3px solid #8B4A2E",
+                  borderRadius: "4px",
+                  padding: "1rem 1.25rem",
+                }}
+              >
+                <div
+                  style={{
+                    display: "inline-block",
+                    fontFamily: "Cormorant SC, Georgia, serif",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.15em",
+                    color: "#5C1F1F",
+                    background: "rgba(92,31,31,0.1)",
+                    padding: "2px 8px",
+                    borderRadius: "2px",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  ВАЖНО
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "Cormorant Garamond, Georgia, serif",
+                    fontSize: "1.15rem",
+                    color: "#5C1F1F",
+                    fontWeight: 600,
+                    margin: "0 0 0.5rem",
+                  }}
+                >
+                  Нужна ли страховка?
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "Lora, Georgia, serif",
+                    fontSize: "0.95rem",
+                    color: "#8B4A2E",
+                    lineHeight: 1.8,
+                    margin: 0,
+                    fontStyle: "italic",
+                  }}
+                >
+                  Туристическая страховка для въезда в Грузию{" "}
+                  <strong style={{ color: "#5C1F1F", fontStyle: "normal" }}>
+                    обязательна
+                  </strong>{" "}
+                  — без неё на границе могут не пропустить. Оформите заранее. Мы
+                  сами пользуемся{" "}
+                  <a
+                    href="https://tbcinsurance.ge/en/personal/travel/foreign-travel-insurance"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#8B4A2E",
+                      textDecoration: "none",
+                      borderBottom: "1px solid rgba(139,74,46,0.5)",
+                      paddingBottom: "1px",
+                    }}
+                  >
+                    TBC Insurance
+                  </a>
+                  .
+                </p>
+              </div>
+
               {/* Q1 */}
               <div style={{ marginBottom: "1.75rem" }}>
                 <h3
@@ -407,51 +493,14 @@ export default function Letter({ invitation }) {
                     fontStyle: "italic",
                   }}
                 >
-                  Мы не принуждаем выбирать определенные цвета и ткани для ваших
-                  нарядов на наше торжество. Хотим, чтобы если вы и покупали бы
-                  новый наряд, то смогли бы надеть его в будущем еще пару раз.
-                  Приходите в том, в чем вам комфортно.
+                  Специального дресс-кода и определённых цветов мы не требуем —
+                  но ждём, что все будут нарядными. Хотим, чтобы если вы и
+                  покупали бы новый наряд, то смогли бы надеть его в будущем
+                  ещё пару раз. Приходите в том, в чём вам комфортно и
+                  празднично.
                 </p>
               </div>
 
-              {/* Q4 */}
-              <div>
-                <h3
-                  style={{
-                    fontFamily: "Cormorant Garamond, Georgia, serif",
-                    fontSize: "1.15rem",
-                    color: "#5C1F1F",
-                    fontWeight: 600,
-                    margin: "0 0 0.5rem",
-                  }}
-                >
-                  Кому задавать все вопросы по организации?
-                </h3>
-                <p
-                  style={{
-                    fontFamily: "Lora, Georgia, serif",
-                    fontSize: "0.95rem",
-                    color: "#8B4A2E",
-                    lineHeight: 1.8,
-                    margin: 0,
-                    fontStyle: "italic",
-                  }}
-                >
-                  <a
-                    href="https://t.me/chat"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: "#8B4A2E",
-                      textDecoration: "none",
-                      borderBottom: "1px solid rgba(139,74,46,0.5)",
-                      paddingBottom: "1px",
-                    }}
-                  >
-                    Вступайте в чат
-                  </a>
-                </p>
-              </div>
             </div>
           </section>
 
