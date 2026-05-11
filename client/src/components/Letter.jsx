@@ -6,7 +6,7 @@ import AddToCalendar from "./AddToCalendar.jsx";
 /** @type {Array<{ time: string, title: string, desc: string, link?: { href: string, text: string } }>} */
 const PROGRAM_DAY1 = [
   {
-    time: "11:00",
+    time: "12:00",
     title: "Трансфер из Тбилиси",
     desc: "Выезжаем вместе — дорога живописная, Кахетия ждёт",
   },
@@ -16,17 +16,17 @@ const PROGRAM_DAY1 = [
     desc: "Добро пожаловать в In Gremi, Греми — наш дом на эти два дня",
   },
   {
-    time: "16:00",
+    time: "17:00",
     title: "Церемония",
     desc: "Торжественный момент, ради которого мы здесь",
   },
   {
-    time: "17:00",
+    time: "18:00",
     title: "Ужин",
     desc: "Кахетинский стол, тосты и хорошее настроение",
   },
   {
-    time: "19:00",
+    time: "20:00",
     title: "Вечер продолжается",
     desc: "Общение, кальяны и прекрасное настроение под звёздным небом",
   },
